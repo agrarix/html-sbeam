@@ -30,7 +30,8 @@ DEFAULTS = {
     "FSIZE": "6",
     "HOSTNAME": "xynix",
     "SIZE_MOBILE": "0.9em",
-    "SIZE_DESKTOP": "1.25em"
+    "SIZE_DESKTOP": "1.25em",
+    "TITLE": "SunnyBEAM DATA (van de zonnepanelen op CHL14)"
 }
 
 SCRIPT_DIR = Path(__file__).parent
@@ -319,6 +320,7 @@ def main():
     fface = cfg["FFACE"]
     fsize = cfg["FSIZE"]
     hostname = cfg["HOSTNAME"]
+    title = cfg["TITLE"]
     
     output_file = os.path.join(output_dir, index_file)
     log_path = log_file_name
@@ -454,7 +456,7 @@ def main():
     html = []
     html.append("<HTML>")
     html.append("  <HEAD>")
-    html.append("  <TITLE>SunnyBEAM DATA (van de zonnepanelen op CHL14)</TITLE>")
+    html.append(f"  <TITLE>{title}</TITLE>")
     html.append(f'  <META NAME="generator" content="html-sbeam.py v{version}" />')
     html.append(f'  <META NAME="up-date" content="{datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}" />')
     html.append('  <LINK REL="stylesheet" HREF="html-sbeam.css" TYPE="text/css">')
@@ -464,7 +466,7 @@ def main():
     html.append("  <BODY>")
     
     # Header and Legend
-    html.append("    <H1>SunnyBEAM DATA (van de zonnepanelen op CHL14)</H1>")
+    html.append(f"    <H1>{title}</H1>")
     html.append("    <H2>Numbers in kWh</H2>")
     html.append('    <P><span class="kwh-green">&#9632; Groen</span> = hoger dan vorig jaar | <span class="kwh-orange">&#9632; Oranje</span> = lager | <span class="kwh-equal">&#9632; Blauw</span> = gelijk</P>')
     html.append("    <HR>")
