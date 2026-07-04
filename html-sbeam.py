@@ -460,7 +460,7 @@ def main():
     for month in range(1, 13):
         html.append(f"        <TH>{month:02d}</TH>")
     html.append("        <TH>Y.ttl</TH>")
-    html.append("        <TH>gr.ttl</TH>")
+    html.append("        <TH>Gr.ttl</TH>")
     html.append("      </TR>")
     
     # Data Rows
