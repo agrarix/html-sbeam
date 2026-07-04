@@ -31,7 +31,8 @@ DEFAULTS = {
     "HOSTNAME": "xynix",
     "SIZE_MOBILE": "0.9em",
     "SIZE_DESKTOP": "1.25em",
-    "TITLE": "SunnyBEAM DATA (van de zonnepanelen op CHL14)"
+    "TITLE": "SunnyBEAM DATA (van de zonnepanelen op CHL14)",
+    "ICON": "solar_pingu.jpg"
 }
 
 SCRIPT_DIR = Path(__file__).parent
@@ -321,6 +322,7 @@ def main():
     fsize = cfg["FSIZE"]
     hostname = cfg["HOSTNAME"]
     title = cfg["TITLE"]
+    icon_file = cfg["ICON"]
     
     output_file = os.path.join(output_dir, index_file)
     log_path = log_file_name
@@ -367,6 +369,18 @@ def main():
             log(f"Fout bij het genereren van CSS-bestand: {e}")
     else:
         log("Waarschuwing: html-sbeam.css niet gevonden in de scriptmap.")
+
+    # Copy icon file to output directory
+    icon_src = SCRIPT_DIR / icon_file
+    icon_dst = Path(output_dir) / icon_file
+    if icon_src.exists():
+        try:
+            shutil.copy2(icon_src, icon_dst)
+            log(f"Icoon-bestand gekopieerd naar: {icon_dst}")
+        except Exception as e:
+            log(f"Fout bij het kopiëren van icoon-bestand: {e}")
+    else:
+        log(f"Waarschuwing: Icoon-bestand {icon_file} niet gevonden in de scriptmap.")
 
     log("Scannen naar maandelijkse gegevensbestanden...")
     
@@ -460,7 +474,7 @@ def main():
     html.append(f'  <META NAME="generator" content="html-sbeam.py v{version}" />')
     html.append(f'  <META NAME="up-date" content="{datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}" />')
     html.append('  <LINK REL="stylesheet" HREF="html-sbeam.css" TYPE="text/css">')
-    html.append('  <LINK REL="icon" HREF="Agrarix-Pingu_2017.jpg" TYPE="image/jpg">')
+    html.append(f'  <LINK REL="icon" HREF="{icon_file}" TYPE="image/jpg">')
     html.append('  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>')
     html.append("  </HEAD>")
     html.append("  <BODY>")

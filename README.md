@@ -33,6 +33,7 @@ Alle instellingen worden gelezen uit `html-sbeam.rc` met de `SLEUTEL="waarde"`-s
 | `FFACE` | Lettertype (font-family) voor de webpagina | `verdana` |
 | `FSIZE` | Lettergrootte (font-size) van de tabeltekst | `6` |
 | `HOSTNAME` | Hostnaam getoond in de voettekst/footer | `xynix` |
+| `ICON` | Bestandsnaam van het website-icoon / favicon | `solar_pingu.jpg` |
 | `SIZE_MOBILE` | Lettergrootte (font-size) van de tabel op mobiele apparaten | `0.9em` |
 | `SIZE_DESKTOP` | Lettergrootte (font-size) van de tabel op desktop/grote schermen | `1.25em` |
 | `TITLE` | Hoofdkop en paginatitel van de website | `SunnyBEAM DATA (van de zonnepanelen op CHL14)` |
