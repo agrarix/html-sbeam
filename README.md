@@ -89,9 +89,13 @@ python html-sbeam.py -V
 
 ---
 
-## 📈 Interactieve Grafiek
+## 📈 Interactieve Grafieken
 
-De lijngrafiek onder de tabel is interactief dankzij Chart.js:
+Er worden twee lijngrafieken onder de tabel gegenereerd via Chart.js:
+1. **Maandelijkse Opbrengst**: Toont de opbrengst per individuele maand per jaar.
+2. **Cumulatieve Opbrengst**: Toont de opgetelde (cumulatieve) opbrengst van januari tot december voor elk jaar.
+
+Beide grafieken zijn interactief:
 - **Enkel jaar tonen**: Klik op een jaartal in de legenda aan de rechterkant om uitsluitend dat jaar te tonen en alle andere jaren te verbergen.
 - **Jaren toevoegen/verwijderen (Multi-selectie)**: Houd de `Ctrl`-toets ingedrukt (of `Cmd` op macOS) en klik op een jaartal in de legenda om dat specifieke jaar toe te voegen aan of te verwijderen uit de actieve selectie.
 - **Alle jaren herstellen**: Klik zonder `Ctrl` nogmaals op het actieve (enige getoonde) jaartal in de legenda om alle jaren weer zichtbaar te maken.

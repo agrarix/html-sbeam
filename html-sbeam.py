@@ -629,6 +629,115 @@ def main():
     html.append("    });")
     html.append("    </script>")
     
+    # Generate cumulative line chart container
+    html.append("    <H2>Cumulatieve Opbrengst per Jaar</H2>")
+    html.append("    <div class='chart-container' style='position: relative; max-width: 1000px; margin: 20px 0;'>")
+    html.append("        <canvas id='sbeamCumChart'></canvas>")
+    html.append("    </div>")
+    html.append("    <HR>")
+    
+    # Generate cumulative datasets JS array for Chart.js
+    datasets_cum_js = []
+    for idx, year in enumerate(all_years):
+        year_cum_data = []
+        running_total = 0
+        has_any_data = False
+        for month in range(1, 13):
+            val = monthly_data.get((year, month))
+            if val is not None:
+                running_total += val
+                year_cum_data.append(str(running_total))
+                has_any_data = True
+            else:
+                is_future = (year == now.year and month > now.month)
+                if is_future:
+                    year_cum_data.append("null")
+                else:
+                    if has_any_data:
+                        year_cum_data.append(str(running_total))
+                    else:
+                        year_cum_data.append("null")
+            
+        # Distribute colors evenly across the color wheel
+        hue = int((idx * 360 / max(1, len(all_years))) % 360)
+        color = f"hsl({hue}, 70%, 50%)"
+        
+        datasets_cum_js.append(f"""            {{
+                label: "{year}",
+                data: [{", ".join(year_cum_data)}],
+                borderColor: "{color}",
+                backgroundColor: "{color}",
+                borderWidth: 2,
+                tension: 0.1,
+                spanGaps: true
+            }}""")
+    
+    datasets_cum_str = ",\n".join(datasets_cum_js)
+    
+    # Append Chart.js initialization script for cumulative chart
+    html.append("    <script>")
+    html.append("    const ctxCum = document.getElementById('sbeamCumChart').getContext('2d');")
+    html.append("    const chartCum = new Chart(ctxCum, {")
+    html.append("        type: 'line',")
+    html.append("        data: {")
+    html.append("            labels: ['Jan', 'Feb', 'Mrt', 'Apr', 'Mei', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec'],")
+    html.append(f"            datasets: [\n{datasets_cum_str}\n            ]")
+    html.append("        },")
+    html.append("        options: {")
+    html.append("            responsive: true,")
+    html.append("            plugins: {")
+    html.append("                legend: {")
+    html.append("                    position: 'right',")
+    html.append("                    onClick: function(e, legendItem, legend) {")
+    html.append("                        const index = legendItem.datasetIndex;")
+    html.append("                        const ci = legend.chart;")
+    html.append("                        const isCtrl = e.native.ctrlKey || e.native.metaKey;")
+    html.append("                        ")
+    html.append("                        if (isCtrl) {")
+    html.append("                            ci.setDatasetVisibility(index, !ci.isDatasetVisible(index));")
+    html.append("                        } else {")
+    html.append("                            let visibleCount = 0;")
+    html.append("                            ci.data.datasets.forEach((d, i) => {")
+    html.append("                                if (ci.isDatasetVisible(i)) visibleCount++;")
+    html.append("                            });")
+    html.append("                            const isSelfVisible = ci.isDatasetVisible(index);")
+    html.append("                            if (visibleCount === 1 && isSelfVisible) {")
+    html.append("                                ci.data.datasets.forEach((d, i) => {")
+    html.append("                                    ci.setDatasetVisibility(i, true);")
+    html.append("                                });")
+    html.append("                            } else {")
+    html.append("                                ci.data.datasets.forEach((d, i) => {")
+    html.append("                                    ci.setDatasetVisibility(i, i === index);")
+    html.append("                                });")
+    html.append("                            }")
+    html.append("                        }")
+    html.append("                        ci.update();")
+    html.append("                    }")
+    html.append("                },")
+    html.append("                title: {")
+    html.append("                    display: true,")
+    html.append("                    text: 'Cumulatieve Jaaropbrengst (kWh)'")
+    html.append("                }")
+    html.append("            },")
+    html.append("            scales: {")
+    html.append("                y: {")
+    html.append("                    beginAtZero: true,")
+    html.append("                    title: {")
+    html.append("                        display: true,")
+    html.append("                        text: 'kWh'")
+    html.append("                    }")
+    html.append("                },")
+    html.append("                x: {")
+    html.append("                    title: {")
+    html.append("                        display: true,")
+    html.append("                        text: 'Maand'")
+    html.append("                    }")
+    html.append("                }")
+    html.append("            }")
+    html.append("        }")
+    html.append("    });")
+    html.append("    </script>")
+    
     # Get build time of the script file dynamically
     try:
         build_time_str = datetime.fromtimestamp(os.path.getmtime(__file__)).strftime('%d-%m-%Y %H:%M:%S')
