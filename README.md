@@ -88,6 +88,14 @@ python html-sbeam.py -V
 
 ---
 
+## 📈 Interactieve Grafiek
+
+De lijngrafiek onder de tabel is interactief dankzij Chart.js:
+- **Enkel jaar tonen**: Klik op een jaartal in de legenda aan de rechterkant om uitsluitend dat jaar te tonen en alle andere jaren te verbergen.
+- **Alle jaren herstellen**: Klik nogmaals op het actieve (enige getoonde) jaartal in de legenda om alle jaren weer zichtbaar te maken.
+
+---
+
 ## 📋 Gegevensstroom
 
 ```
