@@ -11,6 +11,7 @@ import sys
 import glob
 import re
 import argparse
+import shutil
 from datetime import datetime
 from pathlib import Path
 
@@ -328,6 +329,18 @@ def main():
             return
             
     # HTML generation step (skipped if --days / -d is specified)
+    # Copy CSS file to output directory
+    css_src = SCRIPT_DIR / "html-sbeam.css"
+    css_dst = Path(output_dir) / "html-sbeam.css"
+    if css_src.exists():
+        try:
+            shutil.copy2(css_src, css_dst)
+            log(f"CSS-bestand gekopieerd naar: {css_dst}")
+        except Exception as e:
+            log(f"Fout bij het kopiëren van CSS-bestand: {e}")
+    else:
+        log("Waarschuwing: html-sbeam.css niet gevonden in de scriptmap.")
+
     log("Scannen naar maandelijkse gegevensbestanden...")
     
     # Look for compiled files first
@@ -418,27 +431,16 @@ def main():
     html.append("  <HEAD>")
     html.append(f'  <META NAME="generator" content="html-sbeam.py v{version}" />')
     html.append(f'  <META NAME="up-date" content="{datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}" />')
+    html.append('  <LINK REL="stylesheet" HREF="html-sbeam.css" TYPE="text/css">')
     html.append("  </HEAD>")
     html.append("  <TITLE>SunnyBEAM DATA</TITLE>")
     html.append('  <LINK REL="icon" HREF="Agrarix-Pingu_2017.jpg" TYPE="image/jpg">')
     html.append("  <BODY>")
     
-    # CSS Styling matching the live webpage
-    html.append("  <STYLE>")
-    html.append(f"    body {{ font-family: {fface}; }}")
-    html.append("    .kwh-neutral { background-color: #f0f0f0; }")
-    html.append("    .kwh-green { background-color: #90EE90; color: #2d5016; font-weight: bold; }")
-    html.append("    .kwh-orange { background-color: #FFA500; color: #fff; font-weight: bold; }")
-    html.append("    .kwh-equal { background-color: #ADD8E6; color: #003366; font-weight: bold; }")
-    html.append("    table { border-collapse: collapse; margin: 15px 0; }")
-    html.append("    td, th { padding: 8px 12px; border: 1px solid #ddd; }")
-    html.append("    th { background-color: #4CAF50; color: white; }")
-    html.append("  </STYLE>")
-    
     # Header and Legend
     html.append("    <H1>SunnyBEAM DATA</H1>")
     html.append("    <H2>Numbers in kWh</H2>")
-    html.append('    <P><FONT SIZE=2><span class="kwh-green">■ Green</span> = higher than last year | <span class="kwh-orange">■ Orange</span> = lower | <span class="kwh-equal">■ Blue</span> = equal</FONT></P>')
+    html.append('    <P><span class="kwh-green">■ Green</span> = higher than last year | <span class="kwh-orange">■ Orange</span> = lower | <span class="kwh-equal">■ Blue</span> = equal</P>')
     html.append("    <HR>")
     
     # Table Start
@@ -446,17 +448,17 @@ def main():
     
     # Header Row
     html.append("      <TR>")
-    html.append(f"        <TH><FONT FACE={fface} SIZE={fsize}>YR/mn</FONT></TH>")
+    html.append("        <TH>YR/mn</TH>")
     for month in range(1, 13):
-        html.append(f"        <TH><FONT FACE={fface} SIZE={fsize}>{month:02d}</FONT></TH>")
-    html.append(f"        <TH><FONT FACE={fface} SIZE={fsize}>Y.ttl</FONT></TH>")
-    html.append(f"        <TH><FONT FACE={fface} SIZE={fsize}>gr.ttl</FONT></TH>")
+        html.append(f"        <TH>{month:02d}</TH>")
+    html.append("        <TH>Y.ttl</TH>")
+    html.append("        <TH>gr.ttl</TH>")
     html.append("      </TR>")
     
     # Data Rows
     for year in all_years:
         html.append("      <TR>")
-        html.append(f"        <TD><FONT FACE={fface} SIZE={fsize}>{year}</FONT></TD>")
+        html.append(f"        <TD>{year}</TD>")
         
         for month in range(1, 13):
             val = monthly_data.get((year, month))
@@ -476,14 +478,14 @@ def main():
             elif val is not None:
                 color_class = " class='kwh-neutral'"
                 
-            html.append(f"      <TD{color_class}><FONT FACE={fface} SIZE={fsize}>{val_str}</FONT></TD>")
+            html.append(f"      <TD{color_class}>{val_str}</TD>")
             
         # Yearly totals
         y_ttl = yearly_y_ttl.get(year, "")
         gr_ttl = yearly_gr_ttl.get(year, "")
         
-        html.append(f"      <TD><FONT FACE={fface} SIZE={fsize}>{y_ttl}</FONT></TD>")
-        html.append(f"      <TD><FONT FACE={fface} SIZE={fsize}>{gr_ttl}</FONT></TD>")
+        html.append(f"      <TD>{y_ttl}</TD>")
+        html.append(f"      <TD>{gr_ttl}</TD>")
         html.append("      </TR>")
         
     html.append("    </TABLE>")

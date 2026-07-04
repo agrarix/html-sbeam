@@ -1,0 +1,89 @@
+/* html-sbeam.css - Styling voor SunnyBEAM zonnepaneel opbrengsten */
+
+body {
+    font-family: verdana, sans-serif;
+    margin: 20px;
+    background-color: #ffffff;
+    color: #333333;
+}
+
+h1 {
+    color: #2e7d32;
+    margin-bottom: 5px;
+}
+
+h2 {
+    color: #666666;
+    font-size: 1.2em;
+    margin-top: 0;
+    font-weight: normal;
+}
+
+p {
+    font-size: 0.85em;
+    color: #555555;
+}
+
+hr {
+    border: 0;
+    height: 1px;
+    background: #dddddd;
+    margin: 20px 0;
+}
+
+table {
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 0.9em;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+th, td {
+    padding: 8px 12px;
+    border: 1px solid #cccccc;
+    text-align: right;
+}
+
+th:first-child, td:first-child {
+    text-align: left;
+    font-weight: bold;
+}
+
+th {
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* Kleurcodering voor kWh opbrengsten */
+.kwh-neutral {
+    background-color: #f0f0f0;
+    color: #444444;
+}
+
+.kwh-green {
+    background-color: #90EE90;
+    color: #2d5016;
+    font-weight: bold;
+}
+
+.kwh-orange {
+    background-color: #FFA500;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.kwh-equal {
+    background-color: #ADD8E6;
+    color: #003366;
+    font-weight: bold;
+}
+
+/* Footer styling */
+h6 {
+    font-size: 0.75em;
+    color: #888888;
+    font-weight: normal;
+    margin-top: 20px;
+}
