@@ -99,20 +99,35 @@ De lijngrafiek onder de tabel is interactief dankzij Chart.js:
 
 ## 📋 Gegevensstroom
 
-De SBEAM-gegevens worden als volgt aangeleverd:
-- De **SB1200** omvormer stelt de data via **Bluetooth** beschikbaar aan de **SunnyBEAM** uitleesunit.
-- Een **Raspberry Pi** staat via een **USB-verbinding** in contact met de SunnyBEAM om de dagelijkse logs uit te lezen en op te slaan in de datamap (`Z:\DATA\SBEAM`).
+De data- en hardwareketen is als volgt opgebouwd:
 
 ```
-Z:\DATA\SBEAM\YY-MM-DD.CSV (Dagelijkse logs)
+SB1200 (omvormer) 
+    ↓ (Bluetooth)
+SunnyBEAM (uitleesunit)
+    ↓ (USB)
+RaspberryPi
+    ↓ (Ethernet)
+NAS (opslag databestanden Z:\DATA\SBEAM)
+    ↓ (Ethernet)
+PC / Linux (met html-sbeam.py verwerking)
+    ↓
+NAS (opslag index.html & html-sbeam.css)
+    ↓
+Linux-webserver (publiceert op www.agrarix.net/sbeam)
+```
+
+### Logbestandenverwerking:
+```
+Z:\DATA\SBEAM\YY-MM-DD.CSV (Dagelijkse logs van de Raspberry Pi)
     ↓
 (gecompileerd door html-sbeam.py naar)
     ↓
 Z:\DATA\SBEAM\_YYYY-MM.CSV (Gecompileerde maandlogs met dagelijkse rijen)
     ↓
-python html-sbeam.py (leest html-sbeam.rc in voor instellingen)
-    ↓ (leest _YYYY-MM.CSV, berekent Y-o-Y vergelijking en jaartotalen, genereert HTML)
-Z:\WWW\domains\www.agrarix.net\pages\sbeam\index.html
+python html-sbeam.py (verwerkt Y-o-Y vergelijking en jaartotalen op basis van html-sbeam.rc)
+    ↓
+Z:\WWW\domains\www.agrarix.net\pages\sbeam\index.html (HTML & CSS uitvoer)
 ```
 
 ---
