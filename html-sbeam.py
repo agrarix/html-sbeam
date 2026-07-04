@@ -45,10 +45,31 @@ def parse_args():
         description="Generates a static color-coded HTML page from SunnyBeam solar data CSV files."
     )
     parser.add_argument(
+        "-c", "--config",
+        default="html-sbeam.rc",
+        help="Pad naar het configuratiebestand (standaard: %(default)s)"
+    )
+    parser.add_argument(
+        "-d", "--days",
+        action="store_true",
+        help="Alleen dagbestanden naar maandbestanden compileren (geen HTML genereren)"
+    )
+    parser.add_argument(
+        "-p", "--proc", "-w", "--www",
+        action="store_true",
+        dest="proc_only",
+        help="Alleen HTML-pagina genereren op basis van bestaande maandbestanden (geen dagbestanden compileren)"
+    )
+    parser.add_argument(
+        "-f", "--filter",
+        default="",
+        help="Filter om alleen bestanden te verwerken die deze tekst bevatten (bijv. een specifiek jaar)"
+    )
+    parser.add_argument(
         "config_file",
         nargs="?",
-        default="html-sbeam.rc",
-        help="Path to the configuration file (default: %(default)s)"
+        default=None,
+        help="Positioneel pad naar configuratiebestand (voor backwards compatibility)"
     )
     return parser.parse_args()
 
@@ -135,7 +156,7 @@ def parse_daily_file(fpath):
         pass
     return e_total, e_today
 
-def compile_monthly_files(input_dir, log_func):
+def compile_monthly_files(input_dir, log_func, file_filter=""):
     """
     Compiles daily YY-MM-DD.CSV files into monthly _YYYY-MM.CSV files.
     Skips compilation if the monthly file already exists.
@@ -152,6 +173,11 @@ def compile_monthly_files(input_dir, log_func):
             continue
         yy, mm, dd = m.groups()
         month_key = f"20{yy}-{mm}"
+        
+        # Apply filter on month_key or filename
+        if file_filter and (file_filter not in month_key and file_filter not in fname):
+            continue
+            
         if month_key not in groups:
             groups[month_key] = []
         groups[month_key].append((dd, fpath))
@@ -260,7 +286,10 @@ def calculate_monthly_production(data_rows, filename, is_current_month):
 
 def main():
     args = parse_args()
-    cfg = load_config(args.config_file)
+    
+    # Determine config file (support both positional and optional)
+    config_path = args.config_file if args.config_file is not None else args.config
+    cfg = load_config(config_path)
     
     input_dir = cfg["INPUT_DIR"]
     output_dir = cfg["OUTPUT_DIR"]
@@ -289,10 +318,16 @@ def main():
     log(f"HTML-bestand: {output_file}")
     log(f"Logbestand: {log_path}")
     
-    # Compile _YYYY-MM.CSV from daily logs
-    compile_monthly_files(input_dir, log)
-    
-    # 2. Scan for compiled monthly files (_YYYY-MM.CSV) first, fallback to YYYY-MM.CSV
+    # Compile step (skipped if --proc / -p / --www is specified)
+    if not args.proc_only:
+        compile_monthly_files(input_dir, log, file_filter=args.filter)
+        if args.days:
+            log("Alleen compilatie uitgevoerd (--days). HTML-generatie overgeslagen.")
+            with open(log_path, "w", encoding="utf-8") as lf:
+                lf.write("\n".join(log_messages))
+            return
+            
+    # HTML generation step (skipped if --days / -d is specified)
     log("Scannen naar maandelijkse gegevensbestanden...")
     
     # Look for compiled files first
@@ -308,7 +343,10 @@ def main():
         fname = os.path.basename(fpath)
         m = re.match(r"^(\d{4})-(\d{2})\.CSV$", fname)
         if m:
-            files_to_process[m.group(0)] = fpath
+            month_str = m.group(0)
+            if args.filter and (args.filter not in month_str and args.filter not in fname):
+                continue
+            files_to_process[month_str] = fpath
             
     # Overwrite with compiled files
     for fpath in compiled_files:
@@ -316,7 +354,10 @@ def main():
         m = re.match(r"^_(?P<month_str>\d{4}-\d{2})\.CSV$", fname)
         if m:
             month_str = m.group("month_str")
-            files_to_process[month_str + ".CSV"] = fpath
+            target_key = month_str + ".CSV"
+            if args.filter and (args.filter not in month_str and args.filter not in fname):
+                continue
+            files_to_process[target_key] = fpath
             
     log(f"{len(files_to_process)} unieke maanden gevonden om te verwerken.")
     
@@ -327,7 +368,6 @@ def main():
     
     for fname, fpath in sorted(files_to_process.items()):
         # Extract year and month
-        # fname is either YYYY-MM.CSV or from compiled list
         m = re.match(r"^(\d{4})-(\d{2})\.CSV$", fname)
         if not m:
             continue
