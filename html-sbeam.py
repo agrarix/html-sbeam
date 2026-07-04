@@ -354,20 +354,23 @@ def main():
         
     all_years = sorted(list(set(y for y, m in monthly_data.keys())))
     
-    # Compute yearly totals (Y.ttl)
+    # Compute yearly totals (Y.ttl) derived from gr.ttl
     yearly_y_ttl = {}
     for i, year in enumerate(all_years):
         gr_ttl = yearly_gr_ttl.get(year)
         if gr_ttl is not None:
-            if i == 0:
-                yearly_y_ttl[year] = gr_ttl
+            # Find the closest previous year that has a valid gr.ttl
+            prev_gr_ttl = None
+            for prev_yr in reversed(all_years[:i]):
+                if prev_yr in yearly_gr_ttl:
+                    prev_gr_ttl = yearly_gr_ttl[prev_yr]
+                    break
+            
+            if prev_gr_ttl is not None:
+                yearly_y_ttl[year] = gr_ttl - prev_gr_ttl
             else:
-                prev_year = all_years[i - 1]
-                prev_gr_ttl = yearly_gr_ttl.get(prev_year)
-                if prev_gr_ttl is not None:
-                    yearly_y_ttl[year] = gr_ttl - prev_gr_ttl
-                else:
-                    yearly_y_ttl[year] = gr_ttl
+                # First year or no previous year with data
+                yearly_y_ttl[year] = gr_ttl
                     
     # Generate HTML content
     html = []
