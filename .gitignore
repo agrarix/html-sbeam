@@ -1,0 +1,17 @@
+# Ignore raw data files and logs
+*.CSV
+*.csv
+*.log
+live_sbeam.html
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Local backup / temp files
+*.backup
+*.sh_010
+*.rc~
+/implementation_plan.md
+/task.md
+/walkthrough.md
