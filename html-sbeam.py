@@ -97,19 +97,41 @@ def load_config(config_path_str):
 def parse_daily_file(fpath):
     """
     Parses a daily YY-MM-DD.CSV file.
+    If E-Today is missing or invalid, calculates it from 10-minute power values.
     Returns (e_total_str, e_today_str)
     """
     e_today = "-"
     e_total = "-"
     try:
         with open(fpath, "r", encoding="utf-8", errors="ignore") as f:
-            for line in f:
-                line = line.strip()
-                if line.startswith("E-Today kWh;"):
-                    e_today = line.split(";", 1)[1].strip()
-                elif line.startswith("E-Total kWh;"):
-                    e_total = line.split(";", 1)[1].strip()
-    except Exception:
+            lines = [line.strip() for line in f]
+            
+        for line in lines:
+            if line.startswith("E-Today kWh;"):
+                e_today = line.split(";", 1)[1].strip()
+            elif line.startswith("E-Total kWh;"):
+                e_total = line.split(";", 1)[1].strip()
+                
+        # Check if E-Today is missing or invalid
+        if e_today in ("-", "-,---", ""):
+            powers = []
+            for line in lines:
+                if ";" in line:
+                    parts = line.split(";")
+                    if len(parts) >= 2 and re.match(r"^\d{2}:\d{2}$", parts[0].strip()):
+                        val_str = parts[1].strip()
+                        if val_str != "-,---" and val_str != "":
+                            try:
+                                powers.append(float(val_str.replace(",", ".")))
+                            except ValueError:
+                                pass
+            if powers:
+                # Calculate energy: Sum(Power in kW) * (10 / 60) hours
+                calc_today = sum(powers) / 6.0
+                e_today = f"{calc_today:.3f}".replace(".", ",")
+                msg = f"WARNING: E-Today was leeg in {os.path.basename(fpath)}. Berekend uit 10-minuten waarden: {e_today} kWh"
+                WARNINGS.append(msg)
+    except Exception as e:
         pass
     return e_total, e_today
 
