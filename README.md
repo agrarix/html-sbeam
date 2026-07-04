@@ -99,6 +99,10 @@ De lijngrafiek onder de tabel is interactief dankzij Chart.js:
 
 ## 📋 Gegevensstroom
 
+De SBEAM-gegevens worden als volgt aangeleverd:
+- De **SB1200** omvormer stelt de data via **Bluetooth** beschikbaar aan de **SunnyBEAM** uitleesunit.
+- Een **Raspberry Pi** staat via een **USB-verbinding** in contact met de SunnyBEAM om de dagelijkse logs uit te lezen en op te slaan in de datamap (`Z:\DATA\SBEAM`).
+
 ```
 Z:\DATA\SBEAM\YY-MM-DD.CSV (Dagelijkse logs)
     ↓
