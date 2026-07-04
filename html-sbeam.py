@@ -28,7 +28,9 @@ DEFAULTS = {
     "VERSION": "1.03",
     "FFACE": "verdana",
     "FSIZE": "6",
-    "HOSTNAME": "xynix"
+    "HOSTNAME": "xynix",
+    "SIZE_MOBILE": "0.9em",
+    "SIZE_DESKTOP": "1.25em"
 }
 
 SCRIPT_DIR = Path(__file__).parent
@@ -329,15 +331,21 @@ def main():
             return
             
     # HTML generation step (skipped if --days / -d is specified)
-    # Copy CSS file to output directory
+    # Compile and copy CSS file to output directory
     css_src = SCRIPT_DIR / "html-sbeam.css"
     css_dst = Path(output_dir) / "html-sbeam.css"
     if css_src.exists():
         try:
-            shutil.copy2(css_src, css_dst)
-            log(f"CSS-bestand gekopieerd naar: {css_dst}")
+            with open(css_src, "r", encoding="utf-8") as f:
+                css_content = f.read()
+            # Replace sizing variables
+            css_content = css_content.replace("${SIZE_MOBILE}", cfg.get("SIZE_MOBILE", "0.9em"))
+            css_content = css_content.replace("${SIZE_DESKTOP}", cfg.get("SIZE_DESKTOP", "1.25em"))
+            with open(css_dst, "w", encoding="utf-8") as f:
+                f.write(css_content)
+            log(f"CSS-bestand gegenereerd en gekopieerd naar: {css_dst}")
         except Exception as e:
-            log(f"Fout bij het kopiëren van CSS-bestand: {e}")
+            log(f"Fout bij het genereren van CSS-bestand: {e}")
     else:
         log("Waarschuwing: html-sbeam.css niet gevonden in de scriptmap.")
 
