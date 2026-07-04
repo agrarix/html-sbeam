@@ -69,6 +69,9 @@ python html-sbeam.py -f 2026
 
 # Toon de help-informatie (werkt ook met -h, /help of /?)
 python html-sbeam.py --help
+
+# Toon de versie- en build-informatie (werkt ook met --version)
+python html-sbeam.py -V
 ```
 
 ---
