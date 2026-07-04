@@ -437,12 +437,13 @@ def main():
     html = []
     html.append("<HTML>")
     html.append("  <HEAD>")
+    html.append("  <TITLE>SunnyBEAM DATA</TITLE>")
     html.append(f'  <META NAME="generator" content="html-sbeam.py v{version}" />')
     html.append(f'  <META NAME="up-date" content="{datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}" />')
     html.append('  <LINK REL="stylesheet" HREF="html-sbeam.css" TYPE="text/css">')
-    html.append("  </HEAD>")
-    html.append("  <TITLE>SunnyBEAM DATA</TITLE>")
     html.append('  <LINK REL="icon" HREF="Agrarix-Pingu_2017.jpg" TYPE="image/jpg">')
+    html.append('  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>')
+    html.append("  </HEAD>")
     html.append("  <BODY>")
     
     # Header and Legend
@@ -498,6 +499,76 @@ def main():
         
     html.append("    </TABLE>")
     html.append("    <HR>")
+    
+    # Generate line chart container
+    html.append("    <H2>Grafiek per Jaar</H2>")
+    html.append("    <div class='chart-container' style='position: relative; max-width: 1000px; margin: 20px 0;'>")
+    html.append("        <canvas id='sbeamChart'></canvas>")
+    html.append("    </div>")
+    html.append("    <HR>")
+    
+    # Generate datasets JS array for Chart.js
+    datasets_js = []
+    for idx, year in enumerate(all_years):
+        year_data = []
+        for month in range(1, 13):
+            val = monthly_data.get((year, month))
+            year_data.append(str(val) if val is not None else "null")
+            
+        # Distribute colors evenly across the color wheel
+        hue = int((idx * 360 / max(1, len(all_years))) % 360)
+        color = f"hsl({hue}, 70%, 50%)"
+        
+        datasets_js.append(f"""            {{
+                label: "{year}",
+                data: [{", ".join(year_data)}],
+                borderColor: "{color}",
+                backgroundColor: "{color}",
+                borderWidth: 2,
+                tension: 0.1,
+                spanGaps: true
+            }}""")
+    
+    datasets_str = ",\n".join(datasets_js)
+    
+    # Append Chart.js initialization script
+    html.append("    <script>")
+    html.append("    const ctx = document.getElementById('sbeamChart').getContext('2d');")
+    html.append("    const chart = new Chart(ctx, {{")
+    html.append("        type: 'line',")
+    html.append("        data: {{")
+    html.append("            labels: ['Jan', 'Feb', 'Mrt', 'Apr', 'Mei', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec'],")
+    html.append(f"            datasets: [\n{datasets_str}\n            ]")
+    html.append("        }},")
+    html.append("        options: {{")
+    html.append("            responsive: true,")
+    html.append("            plugins: {{")
+    html.append("                legend: {{")
+    html.append("                    position: 'right'")
+    html.append("                }},")
+    html.append("                title: {{")
+    html.append("                    display: true,")
+    html.append("                    text: 'Maandelijkse Opbrengst per Jaar (kWh)'")
+    html.append("                }}")
+    html.append("            }},")
+    html.append("            scales: {{")
+    html.append("                y: {{")
+    html.append("                    beginAtZero: true,")
+    html.append("                    title: {{")
+    html.append("                        display: true,")
+    html.append("                        text: 'kWh'")
+    html.append("                    }}")
+    html.append("                }},")
+    html.append("                x: {{")
+    html.append("                    title: {{")
+    html.append("                        display: true,")
+    html.append("                        text: 'Maand'")
+    html.append("                    }}")
+    html.append("                }}")
+    html.append("            }}")
+    html.append("        }}")
+    html.append("    }});")
+    html.append("    </script>")
     
     # Get build time of the script file dynamically
     try:
