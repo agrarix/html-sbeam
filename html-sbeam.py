@@ -69,6 +69,11 @@ def parse_args():
         help="Filter om alleen bestanden te verwerken die deze tekst bevatten (bijv. een specifiek jaar)"
     )
     parser.add_argument(
+        "-V", "--version",
+        action="store_true",
+        help="Toon het versienummer en build-informatie"
+    )
+    parser.add_argument(
         "config_file",
         nargs="?",
         default=None,
@@ -290,6 +295,18 @@ def calculate_monthly_production(data_rows, filename, is_current_month):
 def main():
     args = parse_args()
     
+    if args.version:
+        try:
+            build_time_str = datetime.fromtimestamp(os.path.getmtime(__file__)).strftime('%d-%m-%Y %H:%M:%S')
+        except Exception:
+            build_time_str = "onbekend"
+        
+        config_path = args.config_file if args.config_file is not None else args.config
+        cfg = load_config(config_path)
+        version = cfg.get("VERSION", "1.03")
+        print(f"html-sbeam.py v{version} (build: {build_time_str})")
+        return
+        
     # Determine config file (support both positional and optional)
     config_path = args.config_file if args.config_file is not None else args.config
     cfg = load_config(config_path)
