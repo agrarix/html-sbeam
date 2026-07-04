@@ -19,3 +19,6 @@ Dit project verwerkt de dagelijkse zonnepaneelmetingen van SunnyBEAM en publicee
 
 3. **Testen**:
    - Het Python-script `html-sbeam.py` hoeft NIET getest te worden door de AI-assistent.
+
+4. **Documentatie**:
+   - Documenteer alle functionele en configuratiewijzigingen eerst in de `README.md` alvorens deze via Git te uploaden.
