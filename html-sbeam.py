@@ -498,7 +498,7 @@ def main():
         
     html.append("    </TABLE>")
     html.append("    <HR>")
-    html.append(f"    <H6>{datetime.now().strftime('%a %b %d %H:%M:%S %Z %Y')} html-sbeam.py v{version} at {hostname}</H6>")
+    html.append(f"    <H6>html-sbeam.py ({datetime.now().strftime('%d-%m-%Y %H:%M:%S')}) v{version} at {hostname}</H6>")
     html.append("  </BODY>")
     html.append("</HTML>")
     
