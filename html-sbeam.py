@@ -448,7 +448,7 @@ def main():
     # Header and Legend
     html.append("    <H1>SunnyBEAM DATA</H1>")
     html.append("    <H2>Numbers in kWh</H2>")
-    html.append('    <P><span class="kwh-green">■ Green</span> = higher than last year | <span class="kwh-orange">■ Orange</span> = lower | <span class="kwh-equal">■ Blue</span> = equal</P>')
+    html.append('    <P><span class="kwh-green">&#9632; Groen</span> = hoger dan vorig jaar | <span class="kwh-orange">&#9632; Oranje</span> = lager | <span class="kwh-equal">&#9632; Blauw</span> = gelijk</P>')
     html.append("    <HR>")
     
     # Table Start
