@@ -139,5 +139,5 @@ Om historische consistentie te garanderen, gebruikt het script de volgende formu
 `maandopbrengst = int(laatste_totaal) - (int(eerste_totaal) - int(eerste_vandaag))`
 
 Jaartotalen:
-- **gr.ttl**: Cumulatieve tellerstand (`E-Total`) aan het einde van het betreffende jaar.
-- **Y.ttl**: Jaarlijkse opbrengst (`gr.ttl` van dit jaar minus `gr.ttl` van het dichtstbijzijnde voorgaande jaar met gegevens).
+- **Gr.ttl**: Cumulatieve tellerstand (`E-Total`) aan het einde van het betreffende jaar.
+- **Y.ttl**: Jaarlijkse opbrengst (`Gr.ttl` van dit jaar minus `Gr.ttl` van het dichtstbijzijnde voorgaande jaar met gegevens).
