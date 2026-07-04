@@ -1,32 +1,77 @@
 # SunnyBEAM Kleurgecodeerde HTML-generator
 
-Dit project bevat scripts om een kleurgecodeerde HTML-tabel te genereren die de kWh-productie van zonnepanelen toont, inclusief een automatische jaar-op-jaar vergelijking.
+Dit project bevat een Python-programma om automatisch een kleurgecodeerde HTML-tabel te genereren die de kWh-productie van zonnepanelen toont, gebaseerd op de stijl van [www.agrarix.net/sbeam](https://www.agrarix.net/sbeam/).
 
-## 📁 Bestanden
+Het programmascript (`html-sbeam.py`) is de actieve en volledige vervanging van alle eerdere shell- en hulpscripts. Het haalt de gegevens uit dagbestanden, compileert ze naar maandbestanden, en bouwt de uiteindelijke HTML-pagina.
 
-- **html-sbeam.py** - Python-script dat:
-  - De configuratie inleest vanuit `html-sbeam.rc` (als deze bestaat).
-  - Dagelijkse bestanden (`YY-MM-DD.CSV`) verwerkt om maandbestanden (`_YYYY-MM.CSV`) te compileren (als deze nog niet bestaan).
-  - De maandelijkse opbrengst berekent op basis van de gecompileerde `_YYYY-MM.CSV` bestanden.
-  - Een HTML-tabel genereert met CSS-styling.
-  - Elk maandtotaal vergelijkt met dezelfde maand van het voorgaande jaar en automatisch de juiste kleurklasse toekent.
-  - Het HTML-bestand opslaat in de opgegeven `OUTPUT_DIR`.
-  
-- **html-sbeam.rc** - Configuratiebestand met variabelen voor de directories en weergave-instellingen.
+---
+
+## 📁 Projectstructuur
+
+```
+html-sbeam/
+├── .agents/
+│   └── AGENTS.md          # Projectrichtlijnen
+├── html-sbeam.rc          # Configuratiebestand
+├── html-sbeam.py          # Python-verwerkingsscript (primair)
+└── README.md              # Projectdocumentatie
+```
+
+---
 
 ## ⚙️ Configuratie (html-sbeam.rc)
 
-Het configuratiebestand gebruikt de `SLEUTEL="waarde"`-syntax. De belangrijkste variabelen zijn:
+Alle instellingen worden gelezen uit `html-sbeam.rc` met de `SLEUTEL="waarde"`-syntax:
 
-```bash
-INPUT_DIR="Z:\DATA\SBEAM"                            # Locatie van de zonnepaneelgegevens (dagelijkse en maandelijkse CSV's)
-OUTPUT_DIR="Z:\WWW\domains\www.agrarix.net\pages\sbeam" # Locatie waar de HTML-pagina moet worden opgeslagen
-INDEX_FILE="index.html"                              # Bestandsnaam van de HTML-pagina
-VERSION="1.03"                                       # Versie-indicator op de webpagina
-FFACE="verdana"                                      # Lettertype voor de pagina
-FSIZE="6"                                            # Grootte van de tabeltekst
-HOSTNAME="xynix"                                     # Hostnaam getoond in de footer
+| Sleutel | Beschrijving | Standaardwaarde |
+|---|---|---|
+| `INPUT_DIR` | Locatie van de zonnepaneelgegevens (dagelijkse en maandelijkse CSV's) | `Z:\DATA\SBEAM` |
+| `OUTPUT_DIR` | Locatie waar de HTML-pagina en het logbestand moeten worden opgeslagen | `Z:\WWW\domains\www.agrarix.net\pages\sbeam` |
+| `INDEX_FILE` | Bestandsnaam van de HTML-pagina | `index.html` |
+| `LOG_FILE` | Bestandsnaam van de logging (wordt opgeslagen in de huidige werkmap) | `html-sbeam.log` |
+| `VERSION` | Versie-indicator die op de webpagina en in de footer getoond wordt | `1.03` |
+| `FFACE` | Lettertype (font-family) voor de webpagina | `verdana` |
+| `FSIZE` | Lettergrootte (font-size) van de tabeltekst | `6` |
+| `HOSTNAME` | Hostnaam getoond in de voettekst/footer | `xynix` |
+
+*Tip: Gebruik forward slashes (`/`) of dubbele backslashes (`\\`) in paden.*
+
+---
+
+## 🚀 Gebruik
+
+Voer het script uit in de terminal:
+
+```powershell
+python html-sbeam.py
 ```
+
+### Opties en Argumenten
+
+Je kunt optioneel een specifiek configuratiebestand opgeven, help opvragen, of filteren op specifieke jaren/bestanden:
+
+```powershell
+# Gebruik een specifiek configuratiebestand in plaats van html-sbeam.rc
+python html-sbeam.py test.rc
+# of: python html-sbeam.py -c test.rc
+
+# Alleen dagbestanden naar maandbestanden compileren (geen HTML genereren)
+python html-sbeam.py -d
+# of: python html-sbeam.py --days
+
+# Alleen HTML-pagina genereren op basis van bestaande maandbestanden (geen compilatie)
+python html-sbeam.py -p
+# of: python html-sbeam.py --proc
+
+# Filteren om alleen bestanden te verwerken die '2026' bevatten
+python html-sbeam.py -f 2026
+# of: python html-sbeam.py --filter 2026
+
+# Toon de help-informatie (werkt ook met -h, /help of /?)
+python html-sbeam.py --help
+```
+
+---
 
 ## 🎨 Kleurenschema
 
@@ -35,24 +80,7 @@ HOSTNAME="xynix"                                     # Hostnaam getoond in de fo
 - **Lichtblauw (`#ADD8E6`)** - Productie van de huidige maand is **gelijk** aan vorig jaar.
 - **Grijs / Wit (`#f0f0f0`)** - Geen gegevens of geen vergelijking met vorig jaar mogelijk.
 
-## 📊 Uitvoer
-
-De gegenereerde HTML is direct te bekijken via de publieke URL:
-[https://www.agrarix.net/sbeam/](https://www.agrarix.net/sbeam/)
-
-## 🚀 Gebruik
-
-Voer het script handmatig uit in de terminal:
-
-```powershell
-python html-sbeam.py
-```
-
-U kunt ook een specifiek configuratiebestand opgeven:
-
-```powershell
-python html-sbeam.py pad/naar/config.rc
-```
+---
 
 ## 📋 Gegevensstroom
 
@@ -68,6 +96,8 @@ python html-sbeam.py (leest html-sbeam.rc in voor instellingen)
 Z:\WWW\domains\www.agrarix.net\pages\sbeam\index.html
 ```
 
+---
+
 ## 🔧 Berekeningsdetails
 
 Om historische consistentie te garanderen, gebruikt het script de volgende formule voor de maandopbrengst:
@@ -75,4 +105,4 @@ Om historische consistentie te garanderen, gebruikt het script de volgende formu
 
 Jaartotalen:
 - **gr.ttl**: Cumulatieve tellerstand (`E-Total`) aan het einde van het betreffende jaar.
-- **Y.ttl**: Jaarlijkse opbrengst (`gr.ttl` van dit jaar minus `gr.ttl` van vorig jaar).
+- **Y.ttl**: Jaarlijkse opbrengst (`gr.ttl` van dit jaar minus `gr.ttl` van het dichtstbijzijnde voorgaande jaar met gegevens).
