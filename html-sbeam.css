@@ -87,3 +87,22 @@ h6 {
     font-weight: normal;
     margin-top: 20px;
 }
+
+/* Responsieve weergave (groter op desktop) */
+@media (min-width: 768px) {
+    body {
+        font-size: 1.1em;
+    }
+    table {
+        font-size: 1.25em; /* Grotere tabel en tekst op desktop */
+    }
+    h1 {
+        font-size: 2em;
+    }
+    h2 {
+        font-size: 1.3em;
+    }
+    p {
+        font-size: 0.95em;
+    }
+}
