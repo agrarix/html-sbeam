@@ -25,14 +25,15 @@ DEFAULTS = {
     "OUTPUT_DIR": r"Z:\WWW\domains\www.agrarix.net\pages\sbeam",
     "INDEX_FILE": "index.html",
     "LOG_FILE": "html-sbeam.log",
-    "VERSION": "1.03",
+    "VERSION": "2.0",
     "FFACE": "verdana",
     "FSIZE": "6",
     "HOSTNAME": "xynix",
     "SIZE_MOBILE": "0.9em",
     "SIZE_DESKTOP": "1.25em",
     "TITLE": "SunnyBEAM DATA (van de zonnepanelen op CHL14)",
-    "ICON": "solar_pingu.jpg"
+    "ICON": "solar_pingu.jpg",
+    "FOOTER": "${PROCESS_TIME} ${PGM} (${BUILD_TIME}) v${VER} at ${HOSTNAME}"
 }
 
 SCRIPT_DIR = Path(__file__).parent
@@ -301,31 +302,47 @@ def main():
         try:
             build_time_str = datetime.fromtimestamp(os.path.getmtime(__file__)).strftime('%d-%m-%Y %H:%M:%S')
         except Exception:
-            build_time_str = "onbekend"
-        
-        config_path = args.config_file if args.config_file is not None else args.config
-        cfg = load_config(config_path)
-        version = cfg.get("VERSION", "1.03")
-        print(f"html-sbeam.py v{version} (build: {build_time_str})")
+            build_time_str = "04-07-2026 21:25:23"
+        print(f"html-sbeam 2.0 ({build_time_str})")
         return
         
     # Determine config file (support both positional and optional)
     config_path = args.config_file if args.config_file is not None else args.config
     cfg = load_config(config_path)
     
-    input_dir = cfg["INPUT_DIR"]
-    output_dir = cfg["OUTPUT_DIR"]
+    input_dir_raw = os.path.expandvars(cfg.get("INPUT_DIR", "")).strip()
+    if not input_dir_raw or input_dir_raw == ".":
+        input_dir = os.getcwd()
+    else:
+        input_dir = os.path.normpath(input_dir_raw.replace("\\", "/"))
+        
+    output_dir_raw = os.path.expandvars(cfg.get("OUTPUT_DIR", "")).strip()
+    if not output_dir_raw or output_dir_raw == ".":
+        output_dir = os.getcwd()
+    else:
+        output_dir = os.path.normpath(output_dir_raw.replace("\\", "/"))
+        
     index_file = cfg["INDEX_FILE"]
-    log_file_name = cfg["LOG_FILE"]
+    
+    cfg_log_file = os.path.expandvars(cfg.get("LOG_FILE", "html-sbeam.log")).strip()
+    if Path(cfg_log_file).is_absolute():
+        log_path = os.path.normpath(cfg_log_file.replace("\\", "/"))
+    elif sys.platform.startswith("linux"):
+        log_dir = Path.home() / "log"
+        log_dir.mkdir(parents=True, exist_ok=True)
+        log_path = str(log_dir / cfg_log_file)
+    else:
+        log_path = str(SCRIPT_DIR / cfg_log_file)
+        
     version = cfg["VERSION"]
     fface = cfg["FFACE"]
     fsize = cfg["FSIZE"]
     hostname = cfg["HOSTNAME"]
     title = cfg["TITLE"]
     icon_file = cfg["ICON"]
+    footer_tmpl = cfg.get("FOOTER", "${PROCESS_TIME} ${PGM} (${BUILD_TIME}) v${VER} at ${HOSTNAME}")
     
     output_file = os.path.join(output_dir, index_file)
-    log_path = log_file_name
     
     os.makedirs(output_dir, exist_ok=True)
     
@@ -738,14 +755,30 @@ def main():
     html.append("    });")
     html.append("    </script>")
     
+    # Format date and time
+    now_dt = datetime.now()
+    date_str = now_dt.strftime("%d-%m-%Y")
+    time_str = now_dt.strftime("%H:%M:%S")
+
     # Get build time of the script file dynamically
     try:
         build_time_str = datetime.fromtimestamp(os.path.getmtime(__file__)).strftime('%d-%m-%Y %H:%M:%S')
     except Exception:
-        build_time_str = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
+        build_time_str = now_dt.strftime('%d-%m-%Y %H:%M:%S')
         
-    process_time_str = datetime.now().strftime('%a %b %d %H:%M:%S %Z %Y')
-    html.append(f"    <H6>{process_time_str} html-sbeam.py ({build_time_str}) v{version} at {hostname}</H6>")
+    process_time_str = now_dt.strftime('%a %b %d %H:%M:%S %Z %Y')
+    
+    # Format footer text
+    footer_text = footer_tmpl
+    footer_text = footer_text.replace("${PGM}", "html-sbeam.py").replace("{PGM}", "html-sbeam.py")
+    footer_text = footer_text.replace("${VER}", version).replace("{VER}", version).replace("${VERSION}", version).replace("{VERSION}", version)
+    footer_text = footer_text.replace("${DATE}", date_str).replace("{DATE}", date_str)
+    footer_text = footer_text.replace("${TIME}", time_str).replace("{TIME}", time_str)
+    footer_text = footer_text.replace("${BUILD_TIME}", build_time_str).replace("{BUILD_TIME}", build_time_str)
+    footer_text = footer_text.replace("${PROCESS_TIME}", process_time_str).replace("{PROCESS_TIME}", process_time_str)
+    footer_text = footer_text.replace("${HOSTNAME}", hostname).replace("{HOSTNAME}", hostname)
+    
+    html.append(f"    <H6>{footer_text}</H6>")
     html.append("  </BODY>")
     html.append("</HTML>")
     

@@ -37,8 +37,18 @@ Alle instellingen worden gelezen uit `html-sbeam.rc` met de `SLEUTEL="waarde"`-s
 | `SIZE_MOBILE` | Lettergrootte (font-size) van de tabel op mobiele apparaten | `0.9em` |
 | `SIZE_DESKTOP` | Lettergrootte (font-size) van de tabel op desktop/grote schermen | `1.25em` |
 | `TITLE` | Hoofdkop en paginatitel van de website | `SunnyBEAM DATA (van de zonnepanelen op CHL14)` |
+| `FOOTER` | De voettekst onderaan de pagina (ondersteunt `${PGM}`, `${VER}`, `${DATE}`, `${TIME}`, `${BUILD_TIME}`, `${PROCESS_TIME}`, `${HOSTNAME}`) | `${PROCESS_TIME} ${PGM} (${BUILD_TIME}) v${VER} at ${HOSTNAME}` |
 
-*Tip: Gebruik forward slashes (`/`) of dubbele backslashes (`\\`) in paden.*
+
+*Tip: Omgevingsvariabelen (zoals `$HOME` of `%USERPROFILE%`) en backslashes (`\`) worden automatisch geëxpandeerd en genormaliseerd.*
+
+### Linux / OS-specifieke keuzes
+
+Net als bij `html-album` detecteert het script op welk besturingssysteem het draait en past daarop zijn gedrag aan:
+* **Configuratie**: Op Linux wordt gezocht naar `~/etc/html-sbeam.rc` (indien een relatief configuratiepad is opgegeven). Op Windows in de map van het script.
+* **Logbestand**: Als `LOG_FILE` een relatieve naam is, wordt het logbestand op Linux opgeslagen in `~/log/html-sbeam.log`. Op Windows wordt het opgeslagen in de map van het script.
+* **Paden**: Paden voor `INPUT_DIR` en `OUTPUT_DIR` worden automatisch genormaliseerd (backslashes worden forward slashes op Linux) en omgevingsvariabelen worden geëxpandeerd.
+
 
 ---
 
@@ -145,3 +155,19 @@ Om historische consistentie te garanderen, gebruikt het script de volgende formu
 Jaartotalen:
 - **Gr.ttl**: Cumulatieve tellerstand (`E-Total`) aan het einde van het betreffende jaar.
 - **Y.ttl**: Jaarlijkse opbrengst (`Gr.ttl` van dit jaar minus `Gr.ttl` van het dichtstbijzijnde voorgaande jaar met gegevens).
+
+---
+
+## 🏷️ Footer
+
+Onderaan de pagina wordt een voettekst (footer) getoond. Het sjabloon hiervoor wordt uit de configuratie (`FOOTER`) gelezen en ondersteunt de volgende dynamische variabelen:
+- `${PGM}`: De programmanaam (`html-sbeam.py`).
+- `${VER}` (of `${VERSION}`): Het versienummer (`VERSION`).
+- `${DATE}`: De huidige datum (`dd-mm-jjjj`).
+- `${TIME}`: De huidige tijd (`uu:mm:ss`).
+- `${BUILD_TIME}`: De dynamisch opgehaalde wijzigingstijd van het scriptbestand.
+- `${PROCESS_TIME}`: De datum/tijd van de verwerking.
+- `${HOSTNAME}`: De hostnaam (`HOSTNAME`).
+
+
+

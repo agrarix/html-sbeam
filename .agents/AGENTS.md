@@ -22,3 +22,7 @@ Dit project verwerkt de dagelijkse zonnepaneelmetingen van SunnyBEAM en publicee
 
 4. **Documentatie**:
    - Documenteer alle functionele en configuratiewijzigingen eerst in de `README.md` alvorens deze via Git te uploaden.
+
+5. **Referentiebronnen**:
+   - De GitHub-organisatie [agrarix](https://github.com/agrarix/) kan (moet) altijd worden geraadpleegd voor referentiecode en context.
+
