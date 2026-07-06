@@ -80,6 +80,12 @@ th {
     font-weight: bold;
 }
 
+.kwh-pink {
+    background-color: #FFC0CB;
+    color: #000000;
+    font-weight: bold;
+}
+
 /* Footer styling */
 h6 {
     font-size: 0.75em;

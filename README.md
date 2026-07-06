@@ -36,7 +36,7 @@ Alle instellingen worden gelezen uit `html-sbeam.rc` met de `SLEUTEL="waarde"`-s
 | `ICON` | Bestandsnaam van het website-icoon / favicon | `solar_pingu.jpg` |
 | `SIZE_MOBILE` | Lettergrootte (font-size) van de tabel op mobiele apparaten | `0.9em` |
 | `SIZE_DESKTOP` | Lettergrootte (font-size) van de tabel op desktop/grote schermen | `1.25em` |
-| `TITLE` | Hoofdkop en paginatitel van de website | `SunnyBEAM DATA (van de zonnepanelen op CHL14)` |
+| `TITLE` | Hoofdkop en paginatitel van de website | `Zonnepanelen opbrengst op CHL14 (mbv SunnyBEAM)` |
 | `FOOTER` | De voettekst onderaan de pagina (ondersteunt `${PGM}`, `${VER}`, `${DATE}`, `${TIME}`, `${BUILD_TIME}`, `${PROCESS_TIME}`, `${HOSTNAME}`) | `${PROCESS_TIME} ${PGM} (${BUILD_TIME}) v${VER} at ${HOSTNAME}` |
 
 
@@ -95,6 +95,7 @@ python html-sbeam.py -V
 - **Groen (`#90EE90`)** - Productie van de huidige maand is **hoger** dan vorig jaar.
 - **Oranje (`#FFA500`)** - Productie van de huidige maand is **lager** dan vorig jaar.
 - **Lichtblauw (`#ADD8E6`)** - Productie van de huidige maand is **gelijk** aan vorig jaar.
+- **Roze (`#FFC0CB`)** - Onvolledige maand (minder dan 25 dagen met metingen).
 - **Grijs / Wit (`#f0f0f0`)** - Geen gegevens of geen vergelijking met vorig jaar mogelijk.
 
 ---
@@ -102,13 +103,14 @@ python html-sbeam.py -V
 ## 📈 Interactieve Grafieken
 
 Er worden twee lijngrafieken onder de tabel gegenereerd via Chart.js:
-1. **Maandelijkse Opbrengst**: Toont de opbrengst per individuele maand per jaar.
-2. **Cumulatieve Opbrengst**: Toont de opgetelde (cumulatieve) opbrengst van januari tot december voor elk jaar.
+1. **Maandelijkse Opbrengst**: Toont de opbrengst per individuele maand per jaar. In deze grafiek is ook een zwarte gestreepte lijn ("Gemiddelde") toegevoegd die het historische gemiddelde per maand (berekend over alle volledige maanden) toont.
+2. **Cumulatieve Opbrengst**: Toont de opgetelde (cumulatieve) opbrengst van januari tot december voor elk jaar. In deze grafiek is tevens een zwarte gestreepte lijn ("Gemiddelde") toegevoegd die de cumulatieve opbouw van het historisch gemiddelde toont.
 
 Beide grafieken zijn interactief:
-- **Enkel jaar tonen**: Klik op een jaartal in de legenda aan de rechterkant om uitsluitend dat jaar te tonen en alle andere jaren te verbergen.
+- **Enkel jaar tonen**: Klik op een jaartal in de legenda aan de rechterkant om uitsluitend dat jaar te tonen en alle andere jaren te verbergen. De lijn "Gemiddelde" blijft hierbij standaard wel zichtbaar om vergelijking mogelijk te maken.
+- **Gemiddelde in-/uitschakelen**: Klik op "Gemiddelde" in de legenda om uitsluitend deze lijn te verbergen of te tonen.
 - **Jaren toevoegen/verwijderen (Multi-selectie)**: Houd de `Ctrl`-toets ingedrukt (of `Cmd` op macOS) en klik op een jaartal in de legenda om dat specifieke jaar toe te voegen aan of te verwijderen uit de actieve selectie.
-- **Alle jaren herstellen**: Klik zonder `Ctrl` nogmaals op het actieve (enige getoonde) jaartal in de legenda om alle jaren weer zichtbaar te maken.
+- **Alle jaren herstellen**: Klik zonder `Ctrl` nogmaals op het actieve (enige getoonde) jaartal in de legenda om alle jaren en de gemiddelde lijn weer zichtbaar te maken.
 
 ---
 
@@ -168,6 +170,19 @@ Onderaan de pagina wordt een voettekst (footer) getoond. Het sjabloon hiervoor w
 - `${BUILD_TIME}`: De dynamisch opgehaalde wijzigingstijd van het scriptbestand.
 - `${PROCESS_TIME}`: De datum/tijd van de verwerking.
 - `${HOSTNAME}`: De hostnaam (`HOSTNAME`).
+
+---
+
+## 📝 Wijzigingsgeschiedenis
+
+- **06-07-2026**: 
+  - De standaardtitel (`TITLE`) is aangepast naar `"Zonnepanelen opbrengst op CHL14 (mbv SunnyBEAM)"`.
+  - De subkop `"Numbers in kWh"` boven de tabel is vertaald naar het Nederlands (`"Waarden in kWh"`).
+  - Controle toegevoegd of `YYYY-MM.CSV` (ruwe maandelijkse data) nieuwer is dan `_YYYY-MM.CSV` (gecompileerde maandlog). Als dat zo is, wordt `_YYYY-MM.CSV` opnieuw opgebouwd aan de hand van de dagbestanden (`YY-MM-DD.CSV`).
+  - Onvolledige maanden (minder dan 25 dagen met metingen) worden nu in het roze (Pink) weergegeven in de tabel en in de eerste grafiek.
+  - Een zwarte gestreepte gemiddelde lijn ("Gemiddelde") toegevoegd aan de grafieken "Grafiek per Jaar" en "Cumulatieve Opbrengst per Jaar" (berekend op basis van alle jaren, met uitsluiting van onvolledige maanden).
+
+
 
 
 

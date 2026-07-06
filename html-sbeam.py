@@ -31,7 +31,7 @@ DEFAULTS = {
     "HOSTNAME": "xynix",
     "SIZE_MOBILE": "0.9em",
     "SIZE_DESKTOP": "1.25em",
-    "TITLE": "SunnyBEAM DATA (van de zonnepanelen op CHL14)",
+    "TITLE": "Zonnepanelen opbrengst op CHL14 (mbv SunnyBEAM)",
     "ICON": "solar_pingu.jpg",
     "FOOTER": "${PROCESS_TIME} ${PGM} (${BUILD_TIME}) v${VER} at ${HOSTNAME}"
 }
@@ -195,9 +195,20 @@ def compile_monthly_files(input_dir, log_func, file_filter=""):
         
     for month_key, items in sorted(groups.items()):
         target_file = os.path.join(input_dir, f"_{month_key}.CSV")
+        raw_monthly_file = os.path.join(input_dir, f"{month_key}.CSV")
+        
+        recreate = False
         if os.path.exists(target_file):
-            log_func(f"  _{month_key}.CSV bestaat al. Overslaan.")
-            continue
+            if os.path.exists(raw_monthly_file):
+                mtime_raw = os.path.getmtime(raw_monthly_file)
+                mtime_target = os.path.getmtime(target_file)
+                if mtime_raw > mtime_target:
+                    recreate = True
+                    log_func(f"  {month_key}.CSV is nieuwer dan _{month_key}.CSV. _{month_key}.CSV wordt opnieuw aangemaakt.")
+            
+            if not recreate:
+                log_func(f"  _{month_key}.CSV bestaat al. Overslaan.")
+                continue
             
         log_func(f"  Maandbestand aanmaken: _{month_key}.CSV uit {len(items)} dagbestanden...")
         
@@ -266,7 +277,7 @@ def calculate_monthly_production(data_rows, filename, is_current_month):
     if not valid_rows:
         msg = f"WARNING: Geen geldige metingen gevonden in {filename}"
         WARNINGS.append(msg)
-        return None, None
+        return None, None, False
         
     # Check for anomalies (resets or daily jumps > 50 kWh)
     has_anomaly = False
@@ -276,10 +287,12 @@ def calculate_monthly_production(data_rows, filename, is_current_month):
             WARNINGS.append(msg)
             has_anomaly = True
             
-    # Check completeness (less than 25 days of data), except for the current month
-    if not is_current_month and len(valid_rows) < 25:
+    # Check completeness (less than 25 days of data)
+    is_incomplete = False
+    if len(valid_rows) < 25:
         msg = f"WARNING: Onvolledige gegevens in {filename}: slechts {len(valid_rows)} dagen met metingen gevonden"
         WARNINGS.append(msg)
+        is_incomplete = True
         
     last_tot = valid_rows[-1][1]
     
@@ -293,7 +306,7 @@ def calculate_monthly_production(data_rows, filename, is_current_month):
         first_tod = valid_rows[0][2]
         production = int(last_tot) - (int(first_tot) - int(first_tod))
         
-    return production, int(last_tot)
+    return production, int(last_tot), is_incomplete
 
 def main():
     args = parse_args()
@@ -434,6 +447,7 @@ def main():
     
     monthly_data = {}  # (year, month) -> production
     yearly_gr_ttl = {}  # year -> last total
+    incomplete_months = set()  # set of (year, month) tuples
     
     now = datetime.now()
     
@@ -448,12 +462,14 @@ def main():
         is_current = (year == now.year and month == now.month)
         
         data_rows = parse_csv_file(fpath)
-        production, last_tot = calculate_monthly_production(data_rows, os.path.basename(fpath), is_current)
+        production, last_tot, is_incomplete = calculate_monthly_production(data_rows, os.path.basename(fpath), is_current)
         
         if production is not None:
             log(f"  Verwerken: {os.path.basename(fpath)} -> {production} kWh (metingen: {len(data_rows)}, eindstand: {last_tot})")
             monthly_data[(year, month)] = production
             yearly_gr_ttl[year] = last_tot
+            if is_incomplete:
+                incomplete_months.add((year, month))
         else:
             log(f"  Verwerken: {os.path.basename(fpath)} -> Geen geldige gegevens gevonden.")
 
@@ -498,8 +514,8 @@ def main():
     
     # Header and Legend
     html.append(f"    <H1>{title}</H1>")
-    html.append("    <H2>Numbers in kWh</H2>")
-    html.append('    <P><span class="kwh-green">&#9632; Groen</span> = hoger dan vorig jaar | <span class="kwh-orange">&#9632; Oranje</span> = lager | <span class="kwh-equal">&#9632; Blauw</span> = gelijk</P>')
+    html.append("    <H2>Waarden in kWh</H2>")
+    html.append('    <P><span class="kwh-green">&#9632; Groen</span> = hoger dan vorig jaar | <span class="kwh-orange">&#9632; Oranje</span> = lager | <span class="kwh-equal">&#9632; Blauw</span> = gelijk | <span class="kwh-pink">&#9632; Roze</span> = onvolledige maand</P>')
     html.append("    <HR>")
     
     # Table Start
@@ -527,7 +543,9 @@ def main():
             prev_val = monthly_data.get((year - 1, month))
             
             color_class = ""
-            if val is not None and prev_val is not None:
+            if (year, month) in incomplete_months:
+                color_class = " class='kwh-pink'"
+            elif val is not None and prev_val is not None:
                 if val > prev_val:
                     color_class = " class='kwh-green'"
                 elif val < prev_val:
@@ -561,24 +579,63 @@ def main():
     datasets_js = []
     for idx, year in enumerate(all_years):
         year_data = []
-        for month in range(1, 13):
-            val = monthly_data.get((year, month))
-            year_data.append(str(val) if val is not None else "null")
-            
+        pt_colors = []
+        pt_radius = []
+        
         # Distribute colors evenly across the color wheel
         hue = int((idx * 360 / max(1, len(all_years))) % 360)
         color = f"hsl({hue}, 70%, 50%)"
         
+        for month in range(1, 13):
+            val = monthly_data.get((year, month))
+            year_data.append(str(val) if val is not None else "null")
+            if (year, month) in incomplete_months:
+                pt_colors.append("'#FFC0CB'")
+                pt_radius.append("6")
+            else:
+                pt_colors.append(f"'{color}'")
+                pt_radius.append("3")
+            
         datasets_js.append(f"""            {{
                 label: "{year}",
                 data: [{", ".join(year_data)}],
                 borderColor: "{color}",
                 backgroundColor: "{color}",
+                pointBackgroundColor: [{", ".join(pt_colors)}],
+                pointBorderColor: [{", ".join(pt_colors)}],
+                pointRadius: [{", ".join(pt_radius)}],
                 borderWidth: 2,
                 tension: 0.1,
                 spanGaps: true
             }}""")
     
+    # Calculate monthly averages over all years (excluding incomplete months)
+    avg_data = []
+    for month in range(1, 13):
+        vals = []
+        for year in all_years:
+            if (year, month) not in incomplete_months:
+                val = monthly_data.get((year, month))
+                if val is not None:
+                    vals.append(val)
+        if vals:
+            avg_val = sum(vals) / len(vals)
+            avg_data.append(str(round(avg_val, 1)))
+        else:
+            avg_data.append("null")
+
+    datasets_js.append(f"""            {{
+                label: "Gemiddelde",
+                data: [{", ".join(avg_data)}],
+                borderColor: "#000000",
+                borderDash: [5, 5],
+                borderWidth: 3,
+                tension: 0.1,
+                pointRadius: 4,
+                pointBackgroundColor: "#000000",
+                spanGaps: true
+            }}""")
+
     datasets_str = ",\n".join(datasets_js)
     
     # Append Chart.js initialization script
@@ -604,19 +661,29 @@ def main():
     html.append("                            // Toggle only the clicked dataset")
     html.append("                            ci.setDatasetVisibility(index, !ci.isDatasetVisible(index));")
     html.append("                        } else {")
-    html.append("                            let visibleCount = 0;")
+    html.append("                            let visibleYearsCount = 0;")
     html.append("                            ci.data.datasets.forEach((d, i) => {")
-    html.append("                                if (ci.isDatasetVisible(i)) visibleCount++;")
+    html.append("                                if (d.label !== 'Gemiddelde' && ci.isDatasetVisible(i)) visibleYearsCount++;")
     html.append("                            });")
     html.append("                            const isSelfVisible = ci.isDatasetVisible(index);")
-    html.append("                            if (visibleCount === 1 && isSelfVisible) {")
-    html.append("                                ci.data.datasets.forEach((d, i) => {")
-    html.append("                                    ci.setDatasetVisibility(i, true);")
-    html.append("                                });")
+    html.append("                            const isGemiddelde = ci.data.datasets[index].label === 'Gemiddelde';")
+    html.append("                            ")
+    html.append("                            if (isGemiddelde) {")
+    html.append("                                ci.setDatasetVisibility(index, !isSelfVisible);")
     html.append("                            } else {")
-    html.append("                                ci.data.datasets.forEach((d, i) => {")
-    html.append("                                    ci.setDatasetVisibility(i, i === index);")
-    html.append("                                });")
+    html.append("                                if (visibleYearsCount === 1 && isSelfVisible) {")
+    html.append("                                    ci.data.datasets.forEach((d, i) => {")
+    html.append("                                        ci.setDatasetVisibility(i, true);")
+    html.append("                                    });")
+    html.append("                                } else {")
+    html.append("                                    ci.data.datasets.forEach((d, i) => {")
+    html.append("                                        if (d.label === 'Gemiddelde') {")
+    html.append("                                            ci.setDatasetVisibility(i, true);")
+    html.append("                                        } else {")
+    html.append("                                            ci.setDatasetVisibility(i, i === index);")
+    html.append("                                        }")
+    html.append("                                    });")
+    html.append("                                }")
     html.append("                            }")
     html.append("                        }")
     html.append("                        ci.update();")
@@ -689,6 +756,28 @@ def main():
                 spanGaps: true
             }}""")
     
+    # Calculate cumulative averages from the monthly average values
+    cum_avg_data = []
+    running_avg_total = 0.0
+    for avg_val_str in avg_data:
+        if avg_val_str != "null":
+            running_avg_total += float(avg_val_str)
+            cum_avg_data.append(str(round(running_avg_total, 1)))
+        else:
+            cum_avg_data.append("null")
+
+    datasets_cum_js.append(f"""            {{
+                label: "Gemiddelde",
+                data: [{", ".join(cum_avg_data)}],
+                borderColor: "#000000",
+                borderDash: [5, 5],
+                borderWidth: 3,
+                tension: 0.1,
+                pointRadius: 4,
+                pointBackgroundColor: "#000000",
+                spanGaps: true
+            }}""")
+
     datasets_cum_str = ",\n".join(datasets_cum_js)
     
     # Append Chart.js initialization script for cumulative chart
@@ -713,19 +802,29 @@ def main():
     html.append("                        if (isCtrl) {")
     html.append("                            ci.setDatasetVisibility(index, !ci.isDatasetVisible(index));")
     html.append("                        } else {")
-    html.append("                            let visibleCount = 0;")
+    html.append("                            let visibleYearsCount = 0;")
     html.append("                            ci.data.datasets.forEach((d, i) => {")
-    html.append("                                if (ci.isDatasetVisible(i)) visibleCount++;")
+    html.append("                                if (d.label !== 'Gemiddelde' && ci.isDatasetVisible(i)) visibleYearsCount++;")
     html.append("                            });")
     html.append("                            const isSelfVisible = ci.isDatasetVisible(index);")
-    html.append("                            if (visibleCount === 1 && isSelfVisible) {")
-    html.append("                                ci.data.datasets.forEach((d, i) => {")
-    html.append("                                    ci.setDatasetVisibility(i, true);")
-    html.append("                                });")
+    html.append("                            const isGemiddelde = ci.data.datasets[index].label === 'Gemiddelde';")
+    html.append("                            ")
+    html.append("                            if (isGemiddelde) {")
+    html.append("                                ci.setDatasetVisibility(index, !isSelfVisible);")
     html.append("                            } else {")
-    html.append("                                ci.data.datasets.forEach((d, i) => {")
-    html.append("                                    ci.setDatasetVisibility(i, i === index);")
-    html.append("                                });")
+    html.append("                                if (visibleYearsCount === 1 && isSelfVisible) {")
+    html.append("                                    ci.data.datasets.forEach((d, i) => {")
+    html.append("                                        ci.setDatasetVisibility(i, true);")
+    html.append("                                    });")
+    html.append("                                } else {")
+    html.append("                                    ci.data.datasets.forEach((d, i) => {")
+    html.append("                                        if (d.label === 'Gemiddelde') {")
+    html.append("                                            ci.setDatasetVisibility(i, true);")
+    html.append("                                        } else {")
+    html.append("                                            ci.setDatasetVisibility(i, i === index);")
+    html.append("                                        }")
+    html.append("                                    });")
+    html.append("                                }")
     html.append("                            }")
     html.append("                        }")
     html.append("                        ci.update();")
