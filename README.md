@@ -163,18 +163,24 @@ Jaartotalen:
 ## 🏷️ Footer
 
 Onderaan de pagina wordt een voettekst (footer) getoond. Het sjabloon hiervoor wordt uit de configuratie (`FOOTER`) gelezen en ondersteunt de volgende dynamische variabelen:
-- `${PGM}`: De programmanaam (`html-sbeam.py`).
+- `${PGM}`: De programmanaam (als hyperlink naar de GitHub-repository).
 - `${VER}` (of `${VERSION}`): Het versienummer (`VERSION`).
 - `${DATE}`: De huidige datum (`dd-mm-jjjj`).
 - `${TIME}`: De huidige tijd (`uu:mm:ss`).
 - `${BUILD_TIME}`: De dynamisch opgehaalde wijzigingstijd van het scriptbestand.
 - `${PROCESS_TIME}`: De datum/tijd van de verwerking.
 - `${HOSTNAME}`: De hostnaam (`HOSTNAME`).
+- `${OS}`: Het besturingssysteem (`Windows` of `Linux`).
 
 ---
 
 ## 📝 Wijzigingsgeschiedenis
 
+- **07-07-2026**:
+  - Footer aangepast naar de stijl van `html-album`. De footer wordt nu gegenereerd in een gecentreerde `<div class="footer">` in plaats van een `<H6>` element.
+  - Dynamische hyperlink toegevoegd aan `${PGM}` in de footer naar de GitHub-repository `html-sbeam`.
+  - `${OS}` wordt nu dynamisch herkend (`Windows` of `Linux`) en vervangen. Op Linux wordt de hostnaam automatisch aan de OS-weergave toegevoegd (`(Linux) at hostname`).
+  - Stijlen voor `.footer` en links binnen de footer toegevoegd aan `html-sbeam.css`.
 - **06-07-2026**: 
   - De standaardtitel (`TITLE`) is aangepast naar `"Zonnepanelen opbrengst op CHL14 (mbv SunnyBEAM)"`.
   - De subkop `"Numbers in kWh"` boven de tabel is vertaald naar het Nederlands (`"Waarden in kWh"`).

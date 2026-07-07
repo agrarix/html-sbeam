@@ -87,11 +87,21 @@ th {
 }
 
 /* Footer styling */
-h6 {
+.footer {
     font-size: 0.75em;
     color: #888888;
     font-weight: normal;
     margin-top: 20px;
+    text-align: center;
+}
+
+.footer a {
+    color: #0000ee;
+    text-decoration: underline;
+}
+
+.footer a:visited {
+    color: #551a8b;
 }
 
 /* Responsieve weergave (groter op desktop) */

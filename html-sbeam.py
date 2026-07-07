@@ -869,7 +869,8 @@ def main():
     
     # Format footer text
     footer_text = footer_tmpl
-    footer_text = footer_text.replace("${PGM}", "html-sbeam.py").replace("{PGM}", "html-sbeam.py")
+    pgm_link = '<a href="https://github.com/agrarix/html-sbeam">html-sbeam</a>'
+    footer_text = footer_text.replace("${PGM}", pgm_link).replace("{PGM}", pgm_link)
     footer_text = footer_text.replace("${VER}", version).replace("{VER}", version).replace("${VERSION}", version).replace("{VERSION}", version)
     footer_text = footer_text.replace("${DATE}", date_str).replace("{DATE}", date_str)
     footer_text = footer_text.replace("${TIME}", time_str).replace("{TIME}", time_str)
@@ -877,7 +878,16 @@ def main():
     footer_text = footer_text.replace("${PROCESS_TIME}", process_time_str).replace("{PROCESS_TIME}", process_time_str)
     footer_text = footer_text.replace("${HOSTNAME}", hostname).replace("{HOSTNAME}", hostname)
     
-    html.append(f"    <H6>{footer_text}</H6>")
+    _os_naam = "Windows" if sys.platform == "win32" else "Linux"
+    if sys.platform != "win32":
+        footer_text = footer_text.replace("(${OS})", f"(Linux) at {hostname}").replace("({OS})", f"(Linux) at {hostname}")
+        if "(Linux) at" not in footer_text:
+            footer_text = footer_text.replace("(Linux)", f"(Linux) at {hostname}")
+    footer_text = footer_text.replace("${OS}", _os_naam).replace("{OS}", _os_naam)
+    
+    html.append("    <center>")
+    html.append(f"    <div class=\"footer\">{footer_text}</div>")
+    html.append("    </center>")
     html.append("  </BODY>")
     html.append("</HTML>")
     
