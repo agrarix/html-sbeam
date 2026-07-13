@@ -81,6 +81,10 @@ python html-sbeam.py -p
 python html-sbeam.py -f 2026
 # of: python html-sbeam.py --filter 2026
 
+# Dagelijkse CSV-bestanden exporteren naar JSON (voor de daggrafiek)
+python html-sbeam.py -j
+# of: python html-sbeam.py --json
+
 # Toon de help-informatie (werkt ook met -h, /help of /?)
 python html-sbeam.py --help
 
@@ -102,15 +106,17 @@ python html-sbeam.py -V
 
 ## 📈 Interactieve Grafieken
 
-Er worden twee lijngrafieken onder de tabel gegenereerd via Chart.js:
+Er worden drie grafieken onder de tabel gegenereerd via Chart.js:
 1. **Maandelijkse Opbrengst**: Toont de opbrengst per individuele maand per jaar. In deze grafiek is ook een zwarte gestreepte lijn ("Gemiddelde") toegevoegd die het historische gemiddelde per maand (berekend over alle volledige maanden) toont.
 2. **Cumulatieve Opbrengst**: Toont de opgetelde (cumulatieve) opbrengst van januari tot december voor elk jaar. In deze grafiek is tevens een zwarte gestreepte lijn ("Gemiddelde") toegevoegd die de cumulatieve opbouw van het historisch gemiddelde toont.
+3. **Verloop gedurende de dag (Daggrafiek)**: Toont het vermogensverloop (kW) per 10-minuten interval gedurende een geselecteerde dag. De datum kan geselecteerd worden via drie gekoppelde dropdown-menu's (Jaar, Maand, Dag) of via de pijlknoppen (vorige/volgende dag), welke goed te bedienen zijn op mobiel. De grafiek staat standaard ingesteld op de meest recente datum met gegevens. De data wordt dynamisch via `fetch()` geladen uit de `daily/` JSON-bestanden.
 
-Beide grafieken zijn interactief:
+De eerste twee grafieken zijn interactief:
 - **Enkel jaar tonen**: Klik op een jaartal in de legenda aan de rechterkant om uitsluitend dat jaar te tonen en alle andere jaren te verbergen. De lijn "Gemiddelde" blijft hierbij standaard wel zichtbaar om vergelijking mogelijk te maken.
 - **Gemiddelde in-/uitschakelen**: Klik op "Gemiddelde" in de legenda om uitsluitend deze lijn te verbergen of te tonen.
 - **Jaren toevoegen/verwijderen (Multi-selectie)**: Houd de `Ctrl`-toets ingedrukt (of `Cmd` op macOS) en klik op een jaartal in de legenda om dat specifieke jaar toe te voegen aan of te verwijderen uit de actieve selectie.
 - **Alle jaren herstellen**: Klik zonder `Ctrl` nogmaals op het actieve (enige getoonde) jaartal in de legenda om alle jaren en de gemiddelde lijn weer zichtbaar te maken.
+
 
 ---
 
@@ -144,7 +150,7 @@ Z:\DATA\SBEAM\_YYYY-MM.CSV (Gecompileerde maandlogs met dagelijkse rijen)
     ↓
 python html-sbeam.py (verwerkt Y-o-Y vergelijking en jaartotalen op basis van html-sbeam.rc)
     ↓
-Z:\WWW\domains\www.agrarix.net\pages\sbeam\index.html (HTML & CSS uitvoer)
+Z:\WWW\domains\www.agrarix.net\pages\sbeam\index.html (HTML & CSS uitvoer) en \daily\YYYY-MM-DD.json (10-minuten dagdata)
 ```
 
 ---
@@ -176,6 +182,13 @@ Onderaan de pagina wordt een voettekst (footer) getoond. Het sjabloon hiervoor w
 
 ## 📝 Wijzigingsgeschiedenis
 
+- **13-07-2026**:
+  - Drie dropdown-menu's (Jaar, Maand, Dag) toegevoegd om een specifieke dag te selecteren.
+  - Pijlknoppen (links/rechts, stijl van `html-album`) toegevoegd aan weerszijden van de dropdowns voor snelle navigatie naar de vorige/volgende dag.
+  - **Mobiele optimalisatie (Zonder Viewport-tag)**: Omdat de pagina bewust geen viewport-tag gebruikt (zodat de brede tabel en grafieken hun desktop-verhoudingen behouden en uitgezoomd worden getoond op mobiel), werkt een standaard media query niet. Dit is opgelost door via JavaScript te detecteren of de gebruiker een mobiel apparaat gebruikt en de `is-mobile` class aan de body toe te voegen. In de CSS worden de knoppen en dropdowns voor mobiel vervolgens vergroot naar `110px` breed/hoog. Door het uitzoomen van de browser worden ze op het scherm exact als `46px` (de juiste touch-target grootte) gerenderd.
+  - Een 4e grafiek (Daggrafiek) toegevoegd die het intraday vermogensverloop (kW) toont via 10-minutenmetingen.
+  - Dagelijkse CSV-gegevens worden door het Python-script omgezet naar compacte JSON-bestanden in de map `daily/` in de outputmap, die dynamisch door de webpagina via fetch geladen worden.
+  - Een nieuwe command-line optie `-j` / `--json` toegevoegd: hiermee wordt de dagelijkse JSON-generatie optioneel gemaakt. Standaard bouwt de webgenerator de datum-index direct in het geheugen op uit de maandelijkse totalenbestanden, wat extreem snel is en I/O over het netwerk bespaart. Dagelijkse JSON-bestanden worden alleen verwerkt/bijgewerkt als `-j` / `--json` expliciet is opgegeven.
 - **07-07-2026**:
   - Footer aangepast naar de stijl van `html-album`. De footer wordt nu gegenereerd in een gecentreerde `<div class="footer">` in plaats van een `<H6>` element.
   - Dynamische hyperlink toegevoegd aan `${PGM}` in de footer naar de GitHub-repository `html-sbeam`.
@@ -187,8 +200,3 @@ Onderaan de pagina wordt een voettekst (footer) getoond. Het sjabloon hiervoor w
   - Controle toegevoegd of `YYYY-MM.CSV` (ruwe maandelijkse data) nieuwer is dan `_YYYY-MM.CSV` (gecompileerde maandlog). Als dat zo is, wordt `_YYYY-MM.CSV` opnieuw opgebouwd aan de hand van de dagbestanden (`YY-MM-DD.CSV`).
   - Onvolledige maanden (minder dan 25 dagen met metingen) worden nu in het roze (Pink) weergegeven in de tabel en in de eerste grafiek.
   - Een zwarte gestreepte gemiddelde lijn ("Gemiddelde") toegevoegd aan de grafieken "Grafiek per Jaar" en "Cumulatieve Opbrengst per Jaar" (berekend op basis van alle jaren, met uitsluiting van onvolledige maanden).
-
-
-
-
-

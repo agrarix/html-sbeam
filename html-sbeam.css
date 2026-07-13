@@ -122,3 +122,77 @@ th {
         font-size: 0.95em;
     }
 }
+
+/* Navigatieknoppen daggrafiek (stijl van html-album) */
+.nav-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 3px;
+    font-size: 16px;
+    flex-shrink: 0;
+    cursor: pointer;
+    user-select: none;
+    text-decoration: none;
+}
+
+.nav-btn.prev-btn {
+    background: linear-gradient(to bottom, #ffc485, #e67e22);
+    border: 1px solid #d35400;
+    color: #000 !important;
+    font-weight: bold;
+}
+.nav-btn.prev-btn:hover {
+    background: linear-gradient(to bottom, #ffa84c, #d35400);
+    color: #000 !important;
+}
+
+.nav-btn.next-btn {
+    background: linear-gradient(to bottom, #a3e4d7, #2ecc71);
+    border: 1px solid #27ae60;
+    color: #000 !important;
+    font-weight: bold;
+}
+.nav-btn.next-btn:hover {
+    background: linear-gradient(to bottom, #76d7c4, #27ae60);
+    color: #000 !important;
+}
+
+.nav-btn:disabled {
+    opacity: 0.35;
+    pointer-events: none;
+}
+
+/* Styling voor dropdowns in de select-container */
+.select-container select {
+    padding: 4px;
+    height: 28px;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    font-family: verdana;
+    font-size: 12px;
+}
+
+/* Mobiele styling getriggerd via JS-klasse op uitgezoomd mobiel scherm (zonder viewport tag) */
+.is-mobile .nav-btn {
+    width: 110px;
+    height: 110px;
+    font-size: 50px;
+    border-radius: 8px;
+}
+.is-mobile .select-container {
+    gap: 20px;
+}
+.is-mobile .select-container label {
+    font-size: 32px;
+}
+.is-mobile .select-container select {
+    height: 110px;
+    font-size: 36px;
+    padding: 10px 20px;
+    border-radius: 8px;
+}
+
+

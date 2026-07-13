@@ -12,9 +12,11 @@ import glob
 import re
 import argparse
 import shutil
+import json
 from datetime import datetime
 from pathlib import Path
 import socket
+
 
 # Programma details voor de footer
 PGM = "html-sbeam"
@@ -88,6 +90,12 @@ def parse_args():
         "-f", "--filter",
         default="",
         help="Filter om alleen bestanden te verwerken die deze tekst bevatten (bijv. een specifiek jaar)"
+    )
+    parser.add_argument(
+        "-j", "--json",
+        action="store_true",
+        dest="generate_json",
+        help="Dagbestanden (YY-MM-DD.CSV) verwerken naar JSON-bestanden in de map 'daily'"
     )
     parser.add_argument(
         "-V", "--version",
@@ -185,7 +193,156 @@ def parse_daily_file(fpath):
         pass
     return e_total, e_today
 
+def parse_daily_file_timeseries(fpath):
+    """
+    Parses a daily YY-MM-DD.CSV file to extract 10-minute interval readings.
+    """
+    labels = []
+    data = []
+    try:
+        with open(fpath, "r", encoding="utf-8", errors="ignore") as f:
+            for line in f:
+                if ";" in line:
+                    parts = line.split(";")
+                    if len(parts) >= 2 and re.match(r"^\d{2}:\d{2}$", parts[0].strip()):
+                        time_str = parts[0].strip()
+                        val_str = parts[1].strip()
+                        if val_str not in ("-,---", "", "-"):
+                            try:
+                                val = float(val_str.replace(",", "."))
+                                # Filter out large anomalies
+                                if val <= 50.0:
+                                    labels.append(time_str)
+                                    data.append(round(val, 3))
+                            except ValueError:
+                                pass
+    except Exception:
+        pass
+    return labels, data
+
+def generate_daily_json_files(input_dir, output_dir, log_func, all_files=False):
+    """
+    Scans for YY-MM-DD.CSV files and generates compact JSON files under output_dir/daily/
+    By default, only checks/compiles the last 5 chronological day files for performance.
+    Calculates and stores the global max power in max_power.txt.
+    """
+    daily_dir = os.path.join(output_dir, "daily")
+    os.makedirs(daily_dir, exist_ok=True)
+    
+    daily_files = sorted(glob.glob(os.path.join(input_dir, "[0-9][0-9]-[0-9][0-9]-[0-9][0-9].CSV")))
+    if not daily_files:
+        return
+        
+    if not all_files:
+        # Enkel de laatste 5 bestanden controleren/verwerken om I/O te minimaliseren
+        files_to_process = daily_files[-5:]
+        log_func("Controleren van de meest recente dagbestanden...")
+    else:
+        files_to_process = daily_files
+        log_func("Genereren van alle dagelijkse JSON-bestanden voor de grafiek...")
+        
+    # Laad max vermogen uit cache bestand
+    max_power_path = os.path.join(daily_dir, "max_power.txt")
+    global_max_power = 0.0
+    if os.path.exists(max_power_path):
+        try:
+            with open(max_power_path, "r", encoding="utf-8") as f:
+                global_max_power = float(f.read().strip())
+        except Exception:
+            pass
+            
+    max_power_changed = False
+    
+    # Bepaal de actieve periodes (huidige en vorige maand) die nog gewijzigd kunnen worden (alleen relevant voor all_files=True)
+    now = datetime.now()
+    current_year = now.year
+    current_month = now.month
+    
+    active_periods = []
+    active_periods.append(f"{current_year}-{current_month:02d}")
+    
+    prev_month = current_month - 1 if current_month > 1 else 12
+    prev_year = current_year if current_month > 1 else current_year - 1
+    active_periods.append(f"{prev_year}-{prev_month:02d}")
+    
+    for fpath in files_to_process:
+        fname = os.path.basename(fpath)
+        m = re.match(r"^(\d{2})-(\d{2})-(\d{2})\.CSV$", fname)
+        if not m:
+            continue
+        yy, mm, dd = m.groups()
+        year = f"20{yy}"
+        
+        target_json = os.path.join(daily_dir, f"{year}-{mm}-{dd}.json")
+        
+        # Check if we need to regenerate
+        recreate = True
+        if os.path.exists(target_json):
+            period = f"{year}-{mm}"
+            # Als we niet alle bestanden verwerken, controleren we altijd de mtime van de geselecteerde bestanden
+            if not all_files or period in active_periods:
+                mtime_csv = os.path.getmtime(fpath)
+                mtime_json = os.path.getmtime(target_json)
+                if mtime_json > mtime_csv:
+                    recreate = False
+            else:
+                recreate = False
+                
+        if recreate:
+            labels, data = parse_daily_file_timeseries(fpath)
+            if labels:
+                try:
+                    with open(target_json, "w", encoding="utf-8") as f:
+                        json.dump({"labels": labels, "data": data}, f)
+                    log_func(f"  JSON aangemaakt: {os.path.basename(target_json)}")
+                except Exception as e:
+                    log_func(f"  Fout bij schrijven naar {os.path.basename(target_json)}: {e}")
+                
+                # Update max vermogen
+                if data:
+                    file_max = max(data)
+                    if file_max > global_max_power:
+                        global_max_power = file_max
+                        max_power_changed = True
+                        
+    # Eenmalige scan van alle bestaande JSON's als de cache nog op 0 staat
+    if global_max_power == 0.0:
+        log_func("Eenmalige scan om maximale vermogen over alle JSON-bestanden te bepalen...")
+        for fp in daily_files:
+            fname = os.path.basename(fp)
+            m = re.match(r"^(\d{2})-(\d{2})-(\d{2})\.CSV$", fname)
+            if not m:
+                continue
+            yy, mm, dd = m.groups()
+            year = f"20{yy}"
+            t_json = os.path.join(daily_dir, f"{year}-{mm}-{dd}.json")
+            if os.path.exists(t_json):
+                try:
+                    with open(t_json, "r", encoding="utf-8") as f:
+                        js_data = json.load(f)
+                        vals = js_data.get("data", [])
+                        if vals:
+                            file_max = max(vals)
+                            if file_max > global_max_power:
+                                global_max_power = file_max
+                                max_power_changed = True
+                except Exception:
+                    pass
+                    
+    # Sla het maximale vermogen op als dit veranderd is en groter is dan 0.0
+    if global_max_power > 0.0 and (max_power_changed or not os.path.exists(max_power_path)):
+        try:
+            with open(max_power_path, "w", encoding="utf-8") as f:
+                f.write(f"{global_max_power:.3f}")
+        except Exception as e:
+            log_func(f"  Fout bij schrijven naar max_power.txt: {e}")
+
+
+
+
+
 def compile_monthly_files(input_dir, log_func, file_filter=""):
+
     """
     Compiles daily YY-MM-DD.CSV files into monthly _YYYY-MM.CSV files.
     Skips compilation if the monthly file already exists.
@@ -393,11 +550,30 @@ def main():
     # Compile step (skipped if --proc / -p / --www is specified)
     if not args.proc_only:
         compile_monthly_files(input_dir, log, file_filter=args.filter)
-        if args.days:
-            log("Alleen compilatie uitgevoerd (--days). HTML-generatie overgeslagen.")
-            with open(log_path, "w", encoding="utf-8") as lf:
-                lf.write("\n".join(log_messages))
-            return
+        
+    # Altijd de laatste 5 dagbestanden controleren en verwerken (voor automatische updates).
+    # Als -j / --json is opgegeven, verwerken we alle dagbestanden.
+    generate_daily_json_files(input_dir, output_dir, log, all_files=args.generate_json)
+        
+    global_min_time = "05:00"
+    global_max_time = "22:30"
+    
+    # Laad het maximale vermogen voor de Y-as
+    max_power_path = os.path.join(output_dir, "daily", "max_power.txt")
+    global_max_power = 0.0
+    if os.path.exists(max_power_path):
+        try:
+            with open(max_power_path, "r", encoding="utf-8") as f:
+                global_max_power = float(f.read().strip())
+        except Exception:
+            pass
+    
+    if not args.proc_only and args.days:
+        log("Alleen compilatie uitgevoerd (--days). HTML-generatie overgeslagen.")
+        with open(log_path, "w", encoding="utf-8") as lf:
+            lf.write("\n".join(log_messages))
+        return
+
             
     # HTML generation step (skipped if --days / -d is specified)
     # Compile and copy CSS file to output directory
@@ -466,6 +642,7 @@ def main():
     monthly_data = {}  # (year, month) -> production
     yearly_gr_ttl = {}  # year -> last total
     incomplete_months = set()  # set of (year, month) tuples
+    available_dates = {}  # YYYY -> MM -> list of DD
     
     now = datetime.now()
     
@@ -480,6 +657,19 @@ def main():
         is_current = (year == now.year and month == now.month)
         
         data_rows = parse_csv_file(fpath)
+        
+        # Bouw de datum-index voor de daggrafiek dropdowns op uit de maandelijkse rijen
+        for date_str, _, _ in data_rows:
+            parts = date_str.split('-')
+            if len(parts) == 3:
+                d_str, m_str, y_str = parts
+                if y_str not in available_dates:
+                    available_dates[y_str] = {}
+                if m_str not in available_dates[y_str]:
+                    available_dates[y_str][m_str] = []
+                if d_str not in available_dates[y_str][m_str]:
+                    available_dates[y_str][m_str].append(d_str)
+                    
         production, last_tot, is_incomplete = calculate_monthly_production(data_rows, os.path.basename(fpath), is_current)
         
         if production is not None:
@@ -497,6 +687,11 @@ def main():
             lf.write("\n".join(log_messages))
         return
         
+    # Sorteer de dagen binnen elke maand in de datum-index
+    for y in available_dates:
+        for m in available_dates[y]:
+            available_dates[y][m].sort()
+            
     all_years = sorted(list(set(y for y, m in monthly_data.keys())))
     
     # Compute yearly totals (Y.ttl) derived from gr.ttl
@@ -872,6 +1067,231 @@ def main():
     html.append("    });")
     html.append("    </script>")
     
+    # 4th Screen: Daily time series chart
+    html.append("    <H2>Historisch verloop gedurende de dag</H2>")
+    svg_left = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>'
+    svg_right = '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>'
+    html.append("    <div class='select-container' style='margin: 15px 0; display: flex; gap: 10px; align-items: center; font-size: 0.95em; flex-wrap: wrap;'>")
+    html.append(f"        <button id='prevDay' class='nav-btn prev-btn'>{svg_left}</button>")
+    html.append("        <div style='display: flex; gap: 8px; align-items: center; flex-wrap: wrap;'>")
+    html.append("            <label for='selectYear'>Jaar:</label>")
+    html.append("            <select id='selectYear'></select>")
+    html.append("            <label for='selectMonth'>Maand:</label>")
+    html.append("            <select id='selectMonth'></select>")
+    html.append("            <label for='selectDay'>Dag:</label>")
+    html.append("            <select id='selectDay'></select>")
+    html.append("        </div>")
+    html.append(f"        <button id='nextDay' class='nav-btn next-btn'>{svg_right}</button>")
+    html.append("    </div>")
+    html.append("    <div class='chart-container' style='position: relative; max-width: 1000px; margin: 20px 0;'>")
+    html.append("        <canvas id='sbeamDailyChart'></canvas>")
+    html.append("    </div>")
+    html.append("    <HR>")
+    
+    # JavaScript logic for daily chart
+    available_dates_json = json.dumps(available_dates)
+    html.append("    <script>")
+    html.append(f"    const availableDates = {available_dates_json};")
+    html.append(f"    const globalMinTime = '{global_min_time}';")
+    html.append(f"    const globalMaxTime = '{global_max_time}';")
+    html.append(f"    const globalMaxPower = {global_max_power};")
+    html.append("    const selectYear = document.getElementById('selectYear');")
+    html.append("    const selectMonth = document.getElementById('selectMonth');")
+    html.append("    const selectDay = document.getElementById('selectDay');")
+    html.append("    const prevBtn = document.getElementById('prevDay');")
+    html.append("    const nextBtn = document.getElementById('nextDay');")
+    html.append("    let dailyChart = null;")
+    html.append("    let allDates = [];")
+    html.append("")
+    html.append("    function buildAllDates() {")
+    html.append("        allDates = [];")
+    html.append("        const years = Object.keys(availableDates).sort((a, b) => a - b);")
+    html.append("        years.forEach(y => {")
+    html.append("            const months = Object.keys(availableDates[y]).sort((a, b) => a - b);")
+    html.append("            months.forEach(m => {")
+    html.append("                const days = [...availableDates[y][m]].sort((a, b) => parseInt(a, 10) - parseInt(b, 10));")
+    html.append("                days.forEach(d => {")
+    html.append("                    allDates.push({ year: y, month: m, day: d });")
+    html.append("                });")
+    html.append("            });")
+    html.append("        });")
+    html.append("    }")
+    html.append("")
+    html.append("    function getCurrentDateIndex() {")
+    html.append("        const y = selectYear.value;")
+    html.append("        const m = selectMonth.value;")
+    html.append("        const d = selectDay.value;")
+    html.append("        return allDates.findIndex(item => item.year === y && item.month === m && item.day === d);")
+    html.append("    }")
+    html.append("")
+    html.append("    function updateNavButtons() {")
+    html.append("        const idx = getCurrentDateIndex();")
+    html.append("        prevBtn.disabled = (idx <= 0);")
+    html.append("        nextBtn.disabled = (idx === -1 || idx >= allDates.length - 1);")
+    html.append("    }")
+    html.append("")
+    html.append("    function timeToMinutes(tStr) {")
+    html.append("        const parts = tStr.split(':');")
+    html.append("        return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);")
+    html.append("    }")
+    html.append("")
+    html.append("    function minutesToTime(mins) {")
+    html.append("        const h = Math.floor(mins / 60);")
+    html.append("        const m = mins % 60;")
+    html.append("        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;")
+    html.append("    }")
+    html.append("")
+    html.append("    function generateTimeLabels(minStr, maxStr) {")
+    html.append("        const labels = [];")
+    html.append("        let curr = timeToMinutes(minStr);")
+    html.append("        const end = timeToMinutes(maxStr);")
+    html.append("        while (curr <= end) {")
+    html.append("            labels.push(minutesToTime(curr));")
+    html.append("            curr += 10;")
+    html.append("        }")
+    html.append("        return labels;")
+    html.append("    }")
+    html.append("")
+    html.append("    const fixedLabels = generateTimeLabels(globalMinTime, globalMaxTime);")
+    html.append("")
+    html.append("    function initDropdowns() {")
+    html.append("        buildAllDates();")
+    html.append("        const years = Object.keys(availableDates).sort((a, b) => b - a);")
+    html.append("        selectYear.innerHTML = years.map(y => `<option value='${y}'>${y}</option>`).join('');")
+    html.append("        selectYear.addEventListener('change', () => updateMonths());")
+    html.append("        selectMonth.addEventListener('change', () => updateDays());")
+    html.append("        selectDay.addEventListener('change', () => loadDailyData());")
+    html.append("        ")
+    html.append("        prevBtn.addEventListener('click', () => {")
+    html.append("            const idx = getCurrentDateIndex();")
+    html.append("            if (idx > 0) {")
+    html.append("                const target = allDates[idx - 1];")
+    html.append("                selectYear.value = target.year;")
+    html.append("                updateMonths(target.month, target.day);")
+    html.append("            }")
+    html.append("        });")
+    html.append("        ")
+    html.append("        nextBtn.addEventListener('click', () => {")
+    html.append("            const idx = getCurrentDateIndex();")
+    html.append("            if (idx !== -1 && idx < allDates.length - 1) {")
+    html.append("                const target = allDates[idx + 1];")
+    html.append("                selectYear.value = target.year;")
+    html.append("                updateMonths(target.month, target.day);")
+    html.append("            }")
+    html.append("        });")
+    html.append("        ")
+    html.append("        updateMonths();")
+    html.append("    }")
+    html.append("")
+    html.append("    function updateMonths(targetMonth = null, targetDay = null) {")
+    html.append("        const year = selectYear.value;")
+    html.append("        const months = Object.keys(availableDates[year] || {}).sort((a, b) => b - a);")
+    html.append("        selectMonth.innerHTML = months.map(m => `<option value='${m}'>${m}</option>`).join('');")
+    html.append("        if (targetMonth && months.includes(targetMonth)) {")
+    html.append("            selectMonth.value = targetMonth;")
+    html.append("        }")
+    html.append("        updateDays(targetDay);")
+    html.append("    }")
+    html.append("")
+    html.append("    function updateDays(targetDay = null) {")
+    html.append("        const year = selectYear.value;")
+    html.append("        const month = selectMonth.value;")
+    html.append("        const days = (availableDates[year] && availableDates[year][month]) || [];")
+    html.append("        const sortedDays = [...days].sort((a, b) => parseInt(a, 10) - parseInt(b, 10));")
+    html.append("        selectDay.innerHTML = sortedDays.map(d => `<option value='${d}'>${d}</option>`).join('');")
+    html.append("        if (sortedDays.length > 0) {")
+    html.append("            if (targetDay && sortedDays.includes(targetDay)) {")
+    html.append("                selectDay.value = targetDay;")
+    html.append("            } else {")
+    html.append("                selectDay.value = sortedDays[sortedDays.length - 1];")
+    html.append("            }")
+    html.append("        }")
+    html.append("        loadDailyData();")
+    html.append("    }")
+    html.append("")
+    html.append("    function loadDailyData() {")
+    html.append("        const year = selectYear.value;")
+    html.append("        const month = selectMonth.value;")
+    html.append("        const day = selectDay.value;")
+    html.append("        if (!year || !month || !day) return;")
+    html.append("        const filename = `daily/${year}-${month}-${day}.json`;")
+    html.append("        fetch(filename)")
+    html.append("            .then(res => {")
+    html.append("                if (!res.ok) throw new Error('Gegevens niet gevonden');")
+    html.append("                return res.json();")
+    html.append("            })")
+    html.append("            .then(data => {")
+    html.append("                const alignedValues = fixedLabels.map(label => {")
+    html.append("                    const idx = data.labels.indexOf(label);")
+    html.append("                    return idx !== -1 ? data.data[idx] : null;")
+    html.append("                });")
+    html.append("                renderDailyChart(alignedValues, `${day}-${month}-${year}`);")
+    html.append("                updateNavButtons();")
+    html.append("            })")
+    html.append("            .catch(err => {")
+    html.append("                const emptyValues = fixedLabels.map(() => null);")
+    html.append("                renderDailyChart(emptyValues, `Geen gegevens voor ${day}-${month}-${year}`);")
+    html.append("                updateNavButtons();")
+    html.append("            });")
+    html.append("    }")
+    html.append("")
+    html.append("    function renderDailyChart(values, dateLabel) {")
+    html.append("        const ctx = document.getElementById('sbeamDailyChart').getContext('2d');")
+    html.append("        if (dailyChart) {")
+    html.append("            dailyChart.data.datasets[0].data = values;")
+    html.append("            dailyChart.options.plugins.title.text = `Vermogensverloop op ${dateLabel} (10-minutenwaarden in kW)`;")
+    html.append("            dailyChart.update();")
+    html.append("        } else {")
+    html.append("            dailyChart = new Chart(ctx, {")
+    html.append("                type: 'line',")
+    html.append("                data: {")
+    html.append("                    labels: fixedLabels,")
+    html.append("                    datasets: [{")
+    html.append("                        label: 'Vermogen (kW)',")
+    html.append("                        data: values,")
+    html.append("                        borderColor: '#FF9800',")
+    html.append("                        backgroundColor: 'rgba(255, 152, 0, 0.15)',")
+    html.append("                        borderWidth: 2.5,")
+    html.append("                        tension: 0.35,")
+    html.append("                        fill: true,")
+    html.append("                        pointRadius: 1,")
+    html.append("                        pointHoverRadius: 5")
+    html.append("                    }]")
+    html.append("                },")
+    html.append("                options: {")
+    html.append("                    responsive: true,")
+    html.append("                    plugins: {")
+    html.append("                        legend: { display: false },")
+    html.append("                        title: {")
+    html.append("                            display: true,")
+    html.append("                            text: `Vermogensverloop op ${dateLabel} (10-minutenwaarden in kW)`,")
+    html.append("                            font: { size: 14 }")
+    html.append("                        }")
+    html.append("                    },")
+    html.append("                    scales: {")
+    html.append("                        y: {")
+    html.append("                            beginAtZero: true,")
+    html.append("                            max: globalMaxPower > 0 ? Math.ceil(globalMaxPower * 2) / 2 : undefined,")
+    html.append("                            title: { display: true, text: 'kW' }")
+    html.append("                        },")
+    html.append("                        x: {")
+    html.append("                            title: { display: true, text: 'Tijd' }")
+    html.append("                        }")
+    html.append("                    }")
+    html.append("                }")
+    html.append("            });")
+    html.append("        }")
+    html.append("    }")
+    html.append("")
+    html.append("    // Mobiele detectie om de selectie-knoppen te vergroten naar 110px.")
+    html.append("    // Dit compenseert voor het feit dat we GEEN viewport-tag gebruiken (om tabel/grafiekverhoudingen intact te houden)")
+    html.append("    // waardoor de browser de pagina standaard uitzoomt en knoppen anders te klein worden op het scherm.")
+    html.append("    if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {")
+    html.append("        document.body.classList.add('is-mobile');")
+    html.append("    }")
+    html.append("    initDropdowns();")
+    html.append("    </script>")
+
     # Format date and time
     now_dt = datetime.now()
     date_str = now_dt.strftime("%d-%m-%Y")
