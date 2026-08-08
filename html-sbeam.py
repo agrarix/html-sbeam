@@ -778,13 +778,13 @@ def main():
         prev_y_ttl = yearly_y_ttl.get(year - 1, "")
         gr_ttl = yearly_gr_ttl.get(year, "")
         
-        # Check completeness of both years
+        # Check completeness of both years (must have all 12 months)
         year_is_incomplete = False
         prev_year_is_incomplete = False
         for m in range(1, 13):
-            if (year, m) in incomplete_months or (year, m) not in monthly_data:
+            if (year, m) not in monthly_data:
                 year_is_incomplete = True
-            if (year - 1, m) in incomplete_months or (year - 1, m) not in monthly_data:
+            if (year - 1, m) not in monthly_data:
                 prev_year_is_incomplete = True
         
         y_ttl_color_class = ""
