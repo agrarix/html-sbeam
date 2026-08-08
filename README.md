@@ -99,7 +99,7 @@ python html-sbeam.py -V
 - **Groen (`#90EE90`)** - Productie van de huidige maand is **hoger** dan vorig jaar.
 - **Oranje (`#FFA500`)** - Productie van de huidige maand is **lager** dan vorig jaar.
 - **Lichtblauw (`#ADD8E6`)** - Productie van de huidige maand is **gelijk** aan vorig jaar.
-- **Roze (`#FFC0CB`)** - Onvolledige maand (minder dan 25 dagen met metingen).
+- **Geel (`#FFFF00`)** - Onvolledige maand (minder dan 25 dagen met metingen).
 - **Grijs / Wit (`#f0f0f0`)** - Geen gegevens of geen vergelijking met vorig jaar mogelijk.
 
 ---
@@ -182,6 +182,10 @@ Onderaan de pagina wordt een voettekst (footer) getoond. Het sjabloon hiervoor w
 
 ## 📝 Wijzigingsgeschiedenis
 
+- **08-08-2026**:
+  - Jaarlijkse opbrengst (`Y.ttl`) krijgt nu dezelfde kleurcodering als de maanden (groen bij stijging, oranje bij daling, lichtblauw bij gelijke opbrengst t.o.v. vorig jaar).
+- **26-07-2026**:
+  - Weergavekleur van onvolledige maanden aangepast van roze naar geel (`#FFFF00`, `.kwh-yellow`) in de tabel, legenda en grafiek.
 - **13-07-2026**:
   - Drie dropdown-menu's (Jaar, Maand, Dag) toegevoegd om een specifieke dag te selecteren.
   - Pijlknoppen (links/rechts, stijl van `html-album`) toegevoegd aan weerszijden van de dropdowns voor snelle navigatie naar de vorige/volgende dag.

@@ -728,7 +728,7 @@ def main():
     # Header and Legend
     html.append(f"    <H1>{title}</H1>")
     html.append("    <H2>Waarden in kWh</H2>")
-    html.append('    <P><span class="kwh-green">&#9632; Groen</span> = hoger dan vorig jaar | <span class="kwh-orange">&#9632; Oranje</span> = lager | <span class="kwh-equal">&#9632; Blauw</span> = gelijk | <span class="kwh-pink">&#9632; Roze</span> = onvolledige maand</P>')
+    html.append('    <P><span class="kwh-green">&#9632; Groen</span> = hoger dan vorig jaar | <span class="kwh-orange">&#9632; Oranje</span> = lager | <span class="kwh-equal">&#9632; Blauw</span> = gelijk | <span class="kwh-yellow">&#9632; Geel</span> = onvolledige maand</P>')
     html.append("    <HR>")
     
     # Table Start
@@ -757,7 +757,7 @@ def main():
             
             color_class = ""
             if (year, month) in incomplete_months:
-                color_class = " class='kwh-pink'"
+                color_class = " class='kwh-yellow'"
             elif val is not None and prev_val is not None:
                 if val > prev_val:
                     color_class = " class='kwh-green'"
@@ -772,9 +772,21 @@ def main():
             
         # Yearly totals
         y_ttl = yearly_y_ttl.get(year, "")
+        prev_y_ttl = yearly_y_ttl.get(year - 1, "")
         gr_ttl = yearly_gr_ttl.get(year, "")
         
-        html.append(f"      <TD>{y_ttl}</TD>")
+        y_ttl_color_class = ""
+        if y_ttl != "" and prev_y_ttl != "":
+            if y_ttl > prev_y_ttl:
+                y_ttl_color_class = " class='kwh-green'"
+            elif y_ttl < prev_y_ttl:
+                y_ttl_color_class = " class='kwh-orange'"
+            else:
+                y_ttl_color_class = " class='kwh-equal'"
+        elif y_ttl != "":
+            y_ttl_color_class = " class='kwh-neutral'"
+            
+        html.append(f"      <TD{y_ttl_color_class}>{y_ttl}</TD>")
         html.append(f"      <TD>{gr_ttl}</TD>")
         html.append("      </TR>")
         
@@ -803,7 +815,7 @@ def main():
             val = monthly_data.get((year, month))
             year_data.append(str(val) if val is not None else "null")
             if (year, month) in incomplete_months:
-                pt_colors.append("'#FFC0CB'")
+                pt_colors.append("'#FFFF00'")
                 pt_radius.append("6")
             else:
                 pt_colors.append(f"'{color}'")

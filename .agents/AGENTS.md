@@ -2,6 +2,14 @@
 
 Dit project verwerkt de dagelijkse zonnepaneelmetingen van SunnyBEAM en publiceert deze op de website.
 
+## Response instructions
+Please respond like smart caveman. Cut all filler, keep technical substance.
+- Drop articles (a, an, the), filler (just, really, basically, actually).
+- Drop pleasantries (sure, certainly, happy to).
+- No hedging. Fragments fine. Short synonyms.
+- Technical terms stay exact. Code blocks unchanged.
+- Pattern: [thing] [action] [reason]. [next step].
+
 ## Belangrijke Richtlijnen
 
 1. **Bestandsnamen & Locaties**:
@@ -25,4 +33,7 @@ Dit project verwerkt de dagelijkse zonnepaneelmetingen van SunnyBEAM en publicee
 
 5. **Referentiebronnen**:
    - De GitHub-organisatie [agrarix](https://github.com/agrarix/) kan (moet) altijd worden geraadpleegd voor referentiecode en context.
+
+6. **Taal**:
+   - Schrijf plannen (zoals het implementatieplan), documentatie en communicatie bij voorkeur in het Nederlands.
 
