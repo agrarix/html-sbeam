@@ -183,7 +183,7 @@ Onderaan de pagina wordt een voettekst (footer) getoond. Het sjabloon hiervoor w
 ## 📝 Wijzigingsgeschiedenis
 
 - **08-08-2026**:
-  - Jaarlijkse opbrengst (`Y.ttl`) krijgt nu dezelfde kleurcodering als de maanden (groen bij stijging, oranje bij daling, lichtblauw bij gelijke opbrengst t.o.v. vorig jaar), mits beide jaren volledig zijn (geen missende maanden zoals bij het lopende jaar).
+  - Jaarlijkse opbrengst (`Y.ttl`) krijgt nu dezelfde kleurcodering als de maanden (groen bij stijging, oranje bij daling, lichtblauw bij gelijke opbrengst t.o.v. vorig jaar). Onvolledige jaren (zoals 2013 en het lopende jaar 2026) worden geel gekleurd, en complete jaren zonder vergelijkbaar vorig jaar (zoals 2014) blijven neutraal (grijs).
 - **26-07-2026**:
   - Weergavekleur van onvolledige maanden aangepast van roze naar geel (`#FFFF00`, `.kwh-yellow`) in de tabel, legenda en grafiek.
 - **13-07-2026**:
