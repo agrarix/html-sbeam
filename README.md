@@ -96,11 +96,11 @@ python html-sbeam.py -V
 
 ## 🎨 Kleurenschema
 
-- **Groen (`#90EE90`)** - Productie van de huidige maand is **hoger** dan vorig jaar.
-- **Oranje (`#FFA500`)** - Productie van de huidige maand is **lager** dan vorig jaar.
-- **Lichtblauw (`#ADD8E6`)** - Productie van de huidige maand is **gelijk** aan vorig jaar.
-- **Geel (`#FFFF00`)** - Onvolledige maand (minder dan 25 dagen met metingen).
-- **Grijs / Wit (`#f0f0f0`)** - Geen gegevens of geen vergelijking met vorig jaar mogelijk.
+- **Groen (`#90EE90`, `.kwh-hoger`)** - Productie van de huidige maand/jaar is **hoger** dan vorig jaar.
+- **Oranje (`#FFA500`, `.kwh-lager`)** - Productie van de huidige maand/jaar is **lager** dan vorig jaar.
+- **Lichtblauw (`#ADD8E6`, `.kwh-gelijk`)** - Productie van de huidige maand/jaar is **gelijk** aan vorig jaar.
+- **Geel (`#FFFF00`, `.kwh-onvolledig`)** - Onvolledige maand/jaar (minder dan 25 dagen met metingen of missende maanden).
+- **Grijs / Wit (`#f0f0f0`, `.kwh-neutraal`)** - Geen gegevens of geen vergelijking met vorig jaar mogelijk.
 
 ---
 
@@ -183,9 +183,10 @@ Onderaan de pagina wordt een voettekst (footer) getoond. Het sjabloon hiervoor w
 ## 📝 Wijzigingsgeschiedenis
 
 - **08-08-2026**:
-  - Jaarlijkse opbrengst (`Y.ttl`) krijgt nu dezelfde kleurcodering als de maanden (groen bij stijging, oranje bij daling, lichtblauw bij gelijke opbrengst t.o.v. vorig jaar). Jaren met missende maanden (zoals startjaar 2013 en lopend jaar 2026) worden geel (onvolledig) gekleurd.
+  - Semantische CSS-klasse namen geïntroduceerd (`kwh-hoger`, `kwh-lager`, `kwh-gelijk`, `kwh-onvolledig`, `kwh-neutraal`) in CSS, Python-script en documentatie om vormgeving en betekenis te scheiden.
+  - Jaarlijkse opbrengst (`Y.ttl`) krijgt nu dezelfde kleurcodering als de maanden (hoger t.o.v. vorig jaar). Jaren met missende maanden (zoals 2013 en 2026) krijgen de klasse `kwh-onvolledig`.
 - **26-07-2026**:
-  - Weergavekleur van onvolledige maanden aangepast van roze naar geel (`#FFFF00`, `.kwh-yellow`) in de tabel, legenda en grafiek.
+  - Weergavekleur van onvolledige maanden aangepast van roze naar geel (`#FFFF00`, `.kwh-onvolledig` / `.kwh-yellow`) in de tabel, legenda en grafiek.
 - **13-07-2026**:
   - Drie dropdown-menu's (Jaar, Maand, Dag) toegevoegd om een specifieke dag te selecteren.
   - Pijlknoppen (links/rechts, stijl van `html-album`) toegevoegd aan weerszijden van de dropdowns voor snelle navigatie naar de vorige/volgende dag.

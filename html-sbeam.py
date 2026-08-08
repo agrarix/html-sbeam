@@ -731,7 +731,7 @@ def main():
     # Header and Legend
     html.append(f"    <H1>{title}</H1>")
     html.append("    <H2>Waarden in kWh</H2>")
-    html.append('    <P><span class="kwh-green">&#9632; Groen</span> = hoger dan vorig jaar | <span class="kwh-orange">&#9632; Oranje</span> = lager | <span class="kwh-equal">&#9632; Blauw</span> = gelijk | <span class="kwh-yellow">&#9632; Geel</span> = onvolledige maand</P>')
+    html.append('    <P><span class="kwh-hoger">&#9632; Groen</span> = hoger dan vorig jaar | <span class="kwh-lager">&#9632; Oranje</span> = lager | <span class="kwh-gelijk">&#9632; Blauw</span> = gelijk | <span class="kwh-onvolledig">&#9632; Geel</span> = onvolledige maand</P>')
     html.append("    <HR>")
     
     # Table Start
@@ -760,16 +760,16 @@ def main():
             
             color_class = ""
             if (year, month) in incomplete_months:
-                color_class = " class='kwh-yellow'"
+                color_class = " class='kwh-onvolledig'"
             elif val is not None and prev_val is not None:
                 if val > prev_val:
-                    color_class = " class='kwh-green'"
+                    color_class = " class='kwh-hoger'"
                 elif val < prev_val:
-                    color_class = " class='kwh-orange'"
+                    color_class = " class='kwh-lager'"
                 else:
-                    color_class = " class='kwh-equal'"
+                    color_class = " class='kwh-gelijk'"
             elif val is not None:
-                color_class = " class='kwh-neutral'"
+                color_class = " class='kwh-neutraal'"
                 
             html.append(f"      <TD{color_class}>{val_str}</TD>")
             
@@ -787,16 +787,16 @@ def main():
         
         y_ttl_color_class = ""
         if year_has_missing_months:
-            y_ttl_color_class = " class='kwh-yellow'"
+            y_ttl_color_class = " class='kwh-onvolledig'"
         elif y_ttl != "" and prev_y_ttl != "":
             if y_ttl > prev_y_ttl:
-                y_ttl_color_class = " class='kwh-green'"
+                y_ttl_color_class = " class='kwh-hoger'"
             elif y_ttl < prev_y_ttl:
-                y_ttl_color_class = " class='kwh-orange'"
+                y_ttl_color_class = " class='kwh-lager'"
             else:
-                y_ttl_color_class = " class='kwh-equal'"
+                y_ttl_color_class = " class='kwh-gelijk'"
         elif y_ttl != "":
-            y_ttl_color_class = " class='kwh-neutral'"
+            y_ttl_color_class = " class='kwh-neutraal'"
             
         html.append(f"      <TD{y_ttl_color_class}>{y_ttl}</TD>")
         html.append(f"      <TD>{gr_ttl}</TD>")
