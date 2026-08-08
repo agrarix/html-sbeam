@@ -778,8 +778,17 @@ def main():
         prev_y_ttl = yearly_y_ttl.get(year - 1, "")
         gr_ttl = yearly_gr_ttl.get(year, "")
         
+        # Check if the year has missing months (less than 12 months)
+        year_has_missing_months = False
+        for m in range(1, 13):
+            if (year, m) not in monthly_data:
+                year_has_missing_months = True
+                break
+        
         y_ttl_color_class = ""
-        if y_ttl != "" and prev_y_ttl != "":
+        if year_has_missing_months:
+            y_ttl_color_class = " class='kwh-yellow'"
+        elif y_ttl != "" and prev_y_ttl != "":
             if y_ttl > prev_y_ttl:
                 y_ttl_color_class = " class='kwh-green'"
             elif y_ttl < prev_y_ttl:
