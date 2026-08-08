@@ -20,7 +20,7 @@ import socket
 
 # Programma details voor de footer
 PGM = "html-sbeam"
-VERSION = "(07-07-2026 12:05)"
+VERSION = "(08-08-2026 08:45)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -45,7 +45,7 @@ DEFAULTS = {
     "OUTPUT_DIR": r"Z:\WWW\domains\www.agrarix.net\pages\sbeam",
     "INDEX_FILE": "index.html",
     "LOG_FILE": "html-sbeam.log",
-    "VERSION": "(07-07-2026 12:05)",
+    "VERSION": "(08-08-2026 08:45)",
     "FFACE": "verdana",
     "FSIZE": "6",
     "HOSTNAME": "xynix",
