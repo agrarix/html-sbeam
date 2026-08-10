@@ -184,6 +184,7 @@ Onderaan de pagina wordt een voettekst (footer) getoond. Het sjabloon hiervoor w
 
 - **10-08-2026**:
   - Daggrafiek dropdown-selectie aangepast: bij het wisselen van Jaar of Maand blijven de geselecteerde Maand en Dag nu zoveel mogelijk behouden in plaats van terug te vallen naar de laatste dag/maand.
+  - Versienummer in `html-sbeam.rc` en script bijgewerkt naar 10-08-2026.
 - **08-08-2026**:
   - Semantische CSS-klasse namen geïntroduceerd (`kwh-hoger`, `kwh-lager`, `kwh-gelijk`, `kwh-onvolledig`, `kwh-neutraal`) in CSS, Python-script en documentatie om vormgeving en betekenis te scheiden.
   - Jaarlijkse opbrengst (`Y.ttl`) krijgt nu dezelfde kleurcodering als de maanden (hoger t.o.v. vorig jaar). Jaren met missende maanden (zoals 2013 en 2026) krijgen de klasse `kwh-onvolledig`.
