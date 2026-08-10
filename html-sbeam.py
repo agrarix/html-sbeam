@@ -814,7 +814,7 @@ def main():
         html.append(f"      <TD>{gr_ttl}</TD>")
         # Rendementsprocent t.o.v. referentiejaar
         if ref_y_ttl and y_ttl != "" and year == ref_year:
-            html.append("      <TD class='kwh-neutraal'>100%</TD>")
+            html.append("      <TD class='kwh-gelijk'>100%</TD>")
         elif ref_y_ttl and y_ttl != "":
             ratio = round(y_ttl / ref_y_ttl * 100, 1)
             if year_has_missing_months:
