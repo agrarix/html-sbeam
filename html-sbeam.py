@@ -782,7 +782,7 @@ def main():
     ref_header = f"R. ({ref_year})" if ref_year else "R."
     html.append(f"        <TH>{ref_header}</TH>")
     html.append("        <TH>NL%</TH>")
-    html.append("        <TH>NL<br>kJ/cm²</TH>")
+    html.append("        <TH>NL<br>kJ/<br>cm2</TH>")
     html.append("      </TR>")
     
     # Data Rows
