@@ -724,7 +724,15 @@ def main():
             ref_y_ttl = yearly_y_ttl[year]
             ref_year = year
             break
-                    
+
+    # KNMI De Bilt globale straling (kJ/cm²) per jaar - bron: KNMI jaaroverzichten
+    knmi_radiation = {
+        2013: 338, 2014: 358, 2015: 351, 2016: 344, 2017: 357,
+        2018: 405, 2019: 370, 2020: 385, 2021: 372, 2022: 430,
+        2023: 378, 2024: 389, 2025: 419
+    }
+    ref_knmi = knmi_radiation.get(ref_year) if ref_year else None
+
     # Generate HTML content
     html = []
     html.append("<HTML>")
@@ -756,6 +764,7 @@ def main():
     html.append("        <TH>Gr.ttl</TH>")
     ref_header = f"R. ({ref_year})" if ref_year else "R."
     html.append(f"        <TH>{ref_header}</TH>")
+    html.append("        <TH>NL%</TH>")
     html.append("      </TR>")
     
     # Data Rows
@@ -824,6 +833,21 @@ def main():
             else:
                 r_class = " class='kwh-lager'"
             html.append(f"      <TD{r_class}>{ratio}%</TD>")
+        else:
+            html.append("      <TD></TD>")
+        # NL referentie straling (KNMI De Bilt) t.o.v. referentiejaar
+        knmi_val = knmi_radiation.get(year)
+        if ref_knmi and knmi_val and year == ref_year:
+            html.append("      <TD class='kwh-gelijk'>100%</TD>")
+        elif ref_knmi and knmi_val:
+            nl_ratio = round(knmi_val / ref_knmi * 100, 1)
+            if year_has_missing_months:
+                nl_class = " class='kwh-onvolledig'"
+            elif nl_ratio >= 100:
+                nl_class = " class='kwh-hoger'"
+            else:
+                nl_class = " class='kwh-lager'"
+            html.append(f"      <TD{nl_class}>{nl_ratio}%</TD>")
         else:
             html.append("      <TD></TD>")
         html.append("      </TR>")
