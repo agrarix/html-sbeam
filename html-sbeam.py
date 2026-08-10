@@ -837,13 +837,13 @@ def main():
             html.append("      <TD></TD>")
         # NL referentie straling (KNMI De Bilt) t.o.v. referentiejaar
         knmi_val = knmi_radiation.get(year)
-        if ref_knmi and knmi_val and year == ref_year:
+        if year_has_missing_months:
+            html.append("      <TD class='kwh-onvolledig'></TD>")
+        elif ref_knmi and knmi_val and year == ref_year:
             html.append("      <TD class='kwh-gelijk'>100%</TD>")
         elif ref_knmi and knmi_val:
             nl_ratio = round(knmi_val / ref_knmi * 100, 1)
-            if year_has_missing_months:
-                nl_class = " class='kwh-onvolledig'"
-            elif nl_ratio >= 100:
+            if nl_ratio >= 100:
                 nl_class = " class='kwh-hoger'"
             else:
                 nl_class = " class='kwh-lager'"
