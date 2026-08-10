@@ -37,3 +37,10 @@ Please respond like smart caveman. Cut all filler, keep technical substance.
 6. **Taal**:
    - Schrijf plannen (zoals het implementatieplan), documentatie en communicatie bij voorkeur in het Nederlands.
 
+7. **SSH & Deployment**:
+   - Server: `maarten@automatix` (`192.168.178.41`).
+   - Lokale SSH-sleutel: `%USERPROFILE%\.ssh\id_ed25519` (`ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEofRFBlLvMPpWjceKR/7YV/q4h/eDWNkraTvjsBvXvM nl19471@fenestrix`).
+   - Projectmap op server: `~/html-sbeam`.
+   - Deployment-commando: `ssh -i %USERPROFILE%\.ssh\id_ed25519 -o StrictHostKeyChecking=no maarten@automatix "cd ~/html-sbeam && git checkout -- . && git pull"`.
+
+
