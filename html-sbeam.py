@@ -765,6 +765,7 @@ def main():
     ref_header = f"R. ({ref_year})" if ref_year else "R."
     html.append(f"        <TH>{ref_header}</TH>")
     html.append("        <TH>NL%</TH>")
+    html.append("        <TH>NL kJ</TH>")
     html.append("      </TR>")
     
     # Data Rows
@@ -848,6 +849,14 @@ def main():
             else:
                 nl_class = " class='kwh-lager'"
             html.append(f"      <TD{nl_class}>{nl_ratio}%</TD>")
+        else:
+            html.append("      <TD></TD>")
+        
+        # Absolute NL straling (kJ/cm2)
+        if year_has_missing_months:
+            html.append("      <TD class='kwh-onvolledig'></TD>")
+        elif knmi_val:
+            html.append(f"      <TD>{knmi_val}</TD>")
         else:
             html.append("      <TD></TD>")
         html.append("      </TR>")
