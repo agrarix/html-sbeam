@@ -163,6 +163,7 @@ Om historische consistentie te garanderen, gebruikt het script de volgende formu
 Jaartotalen:
 - **Gr.ttl**: Cumulatieve tellerstand (`E-Total`) aan het einde van het betreffende jaar.
 - **Y.ttl**: Jaarlijkse opbrengst (`Gr.ttl` van dit jaar minus `Gr.ttl` van het dichtstbijzijnde voorgaande jaar met gegevens).
+- **R. (JJJJ)**: Rendementsprocent van het jaar t.o.v. het eerste volledige kalenderjaar (de referentie). Groen ≥ 100%, blauw ≥ 90%, oranje < 90%. Handig om paneel-degradatie over de jaren te volgen.
 
 ---
 
@@ -183,6 +184,7 @@ Onderaan de pagina wordt een voettekst (footer) getoond. Het sjabloon hiervoor w
 ## 📝 Wijzigingsgeschiedenis
 
 - **10-08-2026**:
+  - Kolom **R. (JJJJ)** toegevoegd naast `Gr.ttl` in de jaaroverzichttabel. Toont de jaarlijkse opbrengst als percentage t.o.v. het eerste volledige kalenderjaar (referentie). Kleurcodering: groen ≥ 100%, blauw ≥ 90%, oranje < 90%. Bedoeld om paneel-degradatie over de jaren eenvoudig te monitoren.
   - Daggrafiek dropdown-selectie aangepast: bij het wisselen van Jaar of Maand blijven de geselecteerde Maand en Dag nu zoveel mogelijk behouden in plaats van terug te vallen naar de laatste dag/maand.
   - Versienummer in `html-sbeam.rc` en script bijgewerkt naar 10-08-2026.
 - **08-08-2026**:

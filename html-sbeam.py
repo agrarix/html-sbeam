@@ -714,6 +714,16 @@ def main():
             else:
                 # First year or no previous year with data
                 yearly_y_ttl[year] = gr_ttl
+
+    # Bepaal referentie-opbrengst: eerste jaar met volledige 12 maanden data
+    ref_y_ttl = None
+    ref_year = None
+    for year in all_years:
+        has_all_months = all((year, m) in monthly_data for m in range(1, 13))
+        if has_all_months and year in yearly_y_ttl and yearly_y_ttl[year] > 0:
+            ref_y_ttl = yearly_y_ttl[year]
+            ref_year = year
+            break
                     
     # Generate HTML content
     html = []
@@ -744,6 +754,8 @@ def main():
         html.append(f"        <TH>{month:02d}</TH>")
     html.append("        <TH>Y.ttl</TH>")
     html.append("        <TH>Gr.ttl</TH>")
+    ref_header = f"R. ({ref_year})" if ref_year else "R."
+    html.append(f"        <TH>{ref_header}</TH>")
     html.append("      </TR>")
     
     # Data Rows
@@ -800,6 +812,20 @@ def main():
             
         html.append(f"      <TD{y_ttl_color_class}>{y_ttl}</TD>")
         html.append(f"      <TD>{gr_ttl}</TD>")
+        # Rendementsprocent t.o.v. referentiejaar
+        if ref_y_ttl and y_ttl != "" and year != ref_year:
+            ratio = round(y_ttl / ref_y_ttl * 100, 1)
+            if ratio >= 100:
+                r_class = " class='kwh-hoger'"
+            elif ratio >= 90:
+                r_class = " class='kwh-gelijk'"
+            else:
+                r_class = " class='kwh-lager'"
+            html.append(f"      <TD{r_class}>{ratio}%</TD>")
+        elif ref_y_ttl and y_ttl != "" and year == ref_year:
+            html.append(f"      <TD class='kwh-neutraal'>100% ★</TD>")
+        else:
+            html.append("      <TD></TD>")
         html.append("      </TR>")
         
     html.append("    </TABLE>")
