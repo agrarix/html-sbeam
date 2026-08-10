@@ -725,12 +725,29 @@ def main():
             ref_year = year
             break
 
-    # KNMI De Bilt globale straling (kJ/cm²) per jaar - bron: KNMI jaaroverzichten
-    knmi_radiation = {
-        2013: 338, 2014: 358, 2015: 351, 2016: 344, 2017: 357,
-        2018: 405, 2019: 370, 2020: 385, 2021: 372, 2022: 430,
-        2023: 378, 2024: 389, 2025: 419
-    }
+    # Laad KNMI De Bilt globale straling (kJ/cm²) per jaar uit extern bestand
+    knmi_radiation = {}
+    knmi_file = SCRIPT_DIR / "knmi-radiation.txt"
+    if knmi_file.exists():
+        try:
+            with open(knmi_file, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith("#"):
+                        continue
+                    if "=" in line:
+                        k, v = line.split("=", 1)
+                        knmi_radiation[int(k.strip())] = float(v.strip())
+        except Exception as e:
+            print(f"Fout bij laden van {knmi_file.name}: {e}")
+            
+    # Fallback naar defaults als bestand leeg of onleesbaar is
+    if not knmi_radiation:
+        knmi_radiation = {
+            2013: 338, 2014: 358, 2015: 351, 2016: 344, 2017: 357,
+            2018: 405, 2019: 370, 2020: 385, 2021: 372, 2022: 430,
+            2023: 378, 2024: 389, 2025: 419
+        }
     ref_knmi = knmi_radiation.get(ref_year) if ref_year else None
 
     # Generate HTML content

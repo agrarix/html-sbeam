@@ -1,0 +1,15 @@
+# KNMI De Bilt globale straling (kJ/cm²) per jaar
+# Formaat: JAAR=STRALING (kommentaarregels met # worden genegeerd)
+2013=338
+2014=358
+2015=351
+2016=344
+2017=357
+2018=405
+2019=370
+2020=385
+2021=372
+2022=430
+2023=378
+2024=389
+2025=419
