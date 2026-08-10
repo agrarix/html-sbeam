@@ -774,7 +774,7 @@ def main():
     
     # Header Row
     html.append("      <TR>")
-    html.append("        <TH>YR/mn</TH>")
+    html.append("        <TH>YR/<br>mnd</TH>")
     for month in range(1, 13):
         html.append(f"        <TH>{month:02d}</TH>")
     html.append("        <TH>Y.ttl</TH>")
@@ -782,7 +782,7 @@ def main():
     ref_header = f"R. ({ref_year})" if ref_year else "R."
     html.append(f"        <TH>{ref_header}</TH>")
     html.append("        <TH>NL%</TH>")
-    html.append("        <TH>NL kJ</TH>")
+    html.append("        <TH>NL<br>kJ/cm²</TH>")
     html.append("      </TR>")
     
     # Data Rows
