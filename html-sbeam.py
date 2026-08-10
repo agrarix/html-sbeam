@@ -813,17 +813,17 @@ def main():
         html.append(f"      <TD{y_ttl_color_class}>{y_ttl}</TD>")
         html.append(f"      <TD>{gr_ttl}</TD>")
         # Rendementsprocent t.o.v. referentiejaar
-        if ref_y_ttl and y_ttl != "" and year != ref_year:
+        if year_has_missing_months:
+            html.append("      <TD class='kwh-onvolledig'></TD>")
+        elif ref_y_ttl and y_ttl != "" and year == ref_year:
+            html.append("      <TD class='kwh-neutraal'>100%</TD>")
+        elif ref_y_ttl and y_ttl != "":
             ratio = round(y_ttl / ref_y_ttl * 100, 1)
             if ratio >= 100:
                 r_class = " class='kwh-hoger'"
-            elif ratio >= 90:
-                r_class = " class='kwh-gelijk'"
             else:
                 r_class = " class='kwh-lager'"
             html.append(f"      <TD{r_class}>{ratio}%</TD>")
-        elif ref_y_ttl and y_ttl != "" and year == ref_year:
-            html.append(f"      <TD class='kwh-neutraal'>100% ★</TD>")
         else:
             html.append("      <TD></TD>")
         html.append("      </TR>")
