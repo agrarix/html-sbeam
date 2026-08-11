@@ -187,9 +187,9 @@ Onderaan de pagina wordt een voettekst (footer) getoond. Het sjabloon hiervoor w
   - De hoofdtabel ("grafiek") gesplitst in twee afzonderlijke tabellen:
     1. Eerste tabel met de maandelijkse opbrengstgegevens (jan t/m dec) en de jaaropbrengst `Y.ttl`.
     2. Tweede tabel met de jaarstatistieken: `YR`, `Y.ttl`, `Gr.ttl`, `R. (JJJJ)`, `NL%` en `NL kJ/cm2`.
-  - Mobiele lettergrootte van de tabellen (`SIZE_MOBILE`) vergroot van `0.9em` naar `1.2em` voor betere leesbaarheid.
+  - Mobiele lettergrootte van de tabellen (`SIZE_MOBILE`) vergroot van `0.9em` naar `1.6em` voor betere leesbaarheid.
   - Cache-busting toegevoegd aan CSS-link in HTML (`?v=VERSION`) om mobiele cache-problemen te voorkomen.
-  - Versienummer en fall-back in script bijgewerkt naar `11-08-2026 09:20`.
+  - Versienummer en fall-back in script bijgewerkt naar `11-08-2026 09:21`.
 - **10-08-2026**:
   - Kolom **R. (JJJJ)** toegevoegd naast `Gr.ttl` in de jaaroverzichttabel. Toont de jaarlijkse opbrengst als percentage t.o.v. het eerste volledige kalenderjaar (referentie). Kleurcodering: groen ≥ 100%, blauw ≥ 90%, oranje < 90%. Bedoeld om paneel-degradatie over de jaren eenvoudig te monitoren.
   - Daggrafiek dropdown-selectie aangepast: bij het wisselen van Jaar of Maand blijven de geselecteerde Maand en Dag nu zoveel mogelijk behouden in plaats van terug te vallen naar de laatste dag/maand.
