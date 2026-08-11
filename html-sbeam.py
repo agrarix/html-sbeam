@@ -23,7 +23,7 @@ PGM = "html-sbeam"
 try:
     VERSION = f"({datetime.fromtimestamp(os.path.getmtime(__file__)).strftime('%d-%m-%Y %H:%M')})"
 except Exception:
-    VERSION = "(08-08-2026 08:45)"
+    VERSION = "(11-08-2026 07:35)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -769,23 +769,18 @@ def main():
     html.append('    <P><span class="kwh-hoger">&#9632; Groen</span> = hoger dan vorig jaar | <span class="kwh-lager">&#9632; Oranje</span> = lager | <span class="kwh-gelijk">&#9632; Blauw</span> = gelijk | <span class="kwh-onvolledig">&#9632; Geel</span> = onvolledige maand</P>')
     html.append("    <HR>")
     
-    # Table Start
+    # Table Start - Table 1: Maandwaarden en Y.ttl
     html.append("    <TABLE border=1>")
     
-    # Header Row
+    # Header Row Table 1
     html.append("      <TR>")
     html.append("        <TH>YR/<br>mnd</TH>")
     for month in range(1, 13):
         html.append(f"        <TH>{month:02d}</TH>")
     html.append("        <TH>Y.ttl</TH>")
-    html.append("        <TH>Gr.ttl</TH>")
-    ref_header = f"R. ({ref_year})" if ref_year else "R."
-    html.append(f"        <TH>{ref_header}</TH>")
-    html.append("        <TH>NL%</TH>")
-    html.append("        <TH>NL<br>kJ/<br>cm2</TH>")
     html.append("      </TR>")
     
-    # Data Rows
+    # Data Rows Table 1
     for year in all_years:
         html.append("      <TR>")
         html.append(f"        <TD>{year}</TD>")
@@ -815,6 +810,55 @@ def main():
         # Yearly totals
         y_ttl = yearly_y_ttl.get(year, "")
         prev_y_ttl = yearly_y_ttl.get(year - 1, "")
+        
+        # Check if the year has missing months (less than 12 months)
+        year_has_missing_months = False
+        for m in range(1, 13):
+            if (year, m) not in monthly_data:
+                year_has_missing_months = True
+                break
+        
+        y_ttl_color_class = ""
+        if year_has_missing_months:
+            y_ttl_color_class = " class='kwh-onvolledig'"
+        elif y_ttl != "" and prev_y_ttl != "":
+            if y_ttl > prev_y_ttl:
+                y_ttl_color_class = " class='kwh-hoger'"
+            elif y_ttl < prev_y_ttl:
+                y_ttl_color_class = " class='kwh-lager'"
+            else:
+                y_ttl_color_class = " class='kwh-gelijk'"
+        elif y_ttl != "":
+            y_ttl_color_class = " class='kwh-neutraal'"
+            
+        html.append(f"      <TD{y_ttl_color_class}>{y_ttl}</TD>")
+        html.append("      </TR>")
+        
+    html.append("    </TABLE>")
+    html.append("    <HR>")
+    
+    # Table Start - Table 2: Jaartotalen en statistieken
+    html.append("    <TABLE border=1>")
+    
+    # Header Row Table 2
+    html.append("      <TR>")
+    html.append("        <TH>YR</TH>")
+    html.append("        <TH>Y.ttl</TH>")
+    html.append("        <TH>Gr.ttl</TH>")
+    ref_header = f"R. ({ref_year})" if ref_year else "R."
+    html.append(f"        <TH>{ref_header}</TH>")
+    html.append("        <TH>NL%</TH>")
+    html.append("        <TH>NL<br>kJ/<br>cm2</TH>")
+    html.append("      </TR>")
+    
+    # Data Rows Table 2
+    for year in all_years:
+        html.append("      <TR>")
+        html.append(f"        <TD>{year}</TD>")
+        
+        # Yearly totals
+        y_ttl = yearly_y_ttl.get(year, "")
+        prev_y_ttl = yearly_y_ttl.get(year - 1, "")
         gr_ttl = yearly_gr_ttl.get(year, "")
         
         # Check if the year has missing months (less than 12 months)
@@ -839,6 +883,7 @@ def main():
             
         html.append(f"      <TD{y_ttl_color_class}>{y_ttl}</TD>")
         html.append(f"      <TD>{gr_ttl}</TD>")
+        
         # Rendementsprocent t.o.v. referentiejaar
         if ref_y_ttl and y_ttl != "" and year == ref_year:
             html.append("      <TD class='kwh-gelijk'>100%</TD>")
@@ -853,6 +898,7 @@ def main():
             html.append(f"      <TD{r_class}>{ratio}%</TD>")
         else:
             html.append("      <TD></TD>")
+            
         # NL referentie straling (KNMI De Bilt) t.o.v. referentiejaar
         knmi_val = knmi_radiation.get(year)
         if year_has_missing_months:

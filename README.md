@@ -183,6 +183,11 @@ Onderaan de pagina wordt een voettekst (footer) getoond. Het sjabloon hiervoor w
 
 ## 📝 Wijzigingsgeschiedenis
 
+- **11-08-2026**:
+  - De hoofdtabel ("grafiek") gesplitst in twee afzonderlijke tabellen:
+    1. Eerste tabel met de maandelijkse opbrengstgegevens (jan t/m dec) en de jaaropbrengst `Y.ttl`.
+    2. Tweede tabel met de jaarstatistieken: `YR`, `Y.ttl`, `Gr.ttl`, `R. (JJJJ)`, `NL%` en `NL kJ/cm2`.
+  - Versienummer en fall-back in script bijgewerkt naar `11-08-2026 07:35`.
 - **10-08-2026**:
   - Kolom **R. (JJJJ)** toegevoegd naast `Gr.ttl` in de jaaroverzichttabel. Toont de jaarlijkse opbrengst als percentage t.o.v. het eerste volledige kalenderjaar (referentie). Kleurcodering: groen ≥ 100%, blauw ≥ 90%, oranje < 90%. Bedoeld om paneel-degradatie over de jaren eenvoudig te monitoren.
   - Daggrafiek dropdown-selectie aangepast: bij het wisselen van Jaar of Maand blijven de geselecteerde Maand en Dag nu zoveel mogelijk behouden in plaats van terug te vallen naar de laatste dag/maand.
