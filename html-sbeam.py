@@ -23,7 +23,7 @@ PGM = "html-sbeam"
 try:
     VERSION = f"({datetime.fromtimestamp(os.path.getmtime(__file__)).strftime('%d-%m-%Y %H:%M')})"
 except Exception:
-    VERSION = "(11-08-2026 09:16)"
+    VERSION = "(11-08-2026 09:20)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -757,7 +757,8 @@ def main():
     html.append(f"  <TITLE>{title}</TITLE>")
     html.append(f'  <META NAME="generator" content="html-sbeam.py v{version}" />')
     html.append(f'  <META NAME="up-date" content="{datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}" />')
-    html.append('  <LINK REL="stylesheet" HREF="html-sbeam.css" TYPE="text/css">')
+    css_version = version.strip("()").replace(" ", "_").replace(":", "")
+    html.append(f'  <LINK REL="stylesheet" HREF="html-sbeam.css?v={css_version}" TYPE="text/css">')
     html.append(f'  <LINK REL="icon" HREF="{icon_file}" TYPE="image/jpg">')
     html.append('  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>')
     html.append("  </HEAD>")
