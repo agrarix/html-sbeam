@@ -1,6 +1,6 @@
 # SunnyBEAM Kleurgecodeerde HTML-generator
 
-Dit project bevat een Python-programma om automatisch een kleurgecodeerde HTML-tabel te genereren die de kWh-productie van zonnepanelen toont, gebaseerd op de stijl van [www.agrarix.net/sbeam](https://www.agrarix.net/sbeam/).
+Dit project bevat een Python-programma om automatisch twee kleurgecodeerde HTML-tabellen te genereren die de kWh-productie van zonnepanelen toont, gebaseerd op de stijl van [www.agrarix.net/sbeam](https://www.agrarix.net/sbeam/).
 
 Het programmascript (`html-sbeam.py`) is de actieve en volledige vervanging van alle eerdere shell- en hulpscripts. Het haalt de gegevens uit dagbestanden, compileert ze naar maandbestanden, en bouwt de uiteindelijke HTML-pagina.
 
@@ -34,8 +34,8 @@ Alle instellingen worden gelezen uit `html-sbeam.rc` met de `SLEUTEL="waarde"`-s
 | `FSIZE` | Lettergrootte (font-size) van de tabeltekst | `6` |
 | `HOSTNAME` | Hostnaam getoond in de voettekst/footer | `xynix` |
 | `ICON` | Bestandsnaam van het website-icoon / favicon | `solar_pingu.jpg` |
-| `SIZE_MOBILE` | Lettergrootte (font-size) van de tabel op mobiele apparaten | `0.9em` |
-| `SIZE_DESKTOP` | Lettergrootte (font-size) van de tabel op desktop/grote schermen | `1.25em` |
+| `SIZE_MOBILE` | Lettergrootte (font-size) van de tabellen op mobiele apparaten | `0.9em` |
+| `SIZE_DESKTOP` | Lettergrootte (font-size) van de tabellen op desktop/grote schermen | `1.25em` |
 | `TITLE` | Hoofdkop en paginatitel van de website | `Zonnepanelen opbrengst op CHL14 (mbv SunnyBEAM)` |
 | `FOOTER` | De voettekst onderaan de pagina (ondersteunt `${PGM}`, `${VER}`, `${DATE}`, `${TIME}`, `${BUILD_TIME}`, `${PROCESS_TIME}`, `${HOSTNAME}`) | `${PROCESS_TIME} ${PGM} (${BUILD_TIME}) v${VER} at ${HOSTNAME}` |
 
@@ -106,7 +106,7 @@ python html-sbeam.py -V
 
 ## 📈 Interactieve Grafieken
 
-Er worden drie grafieken onder de tabel gegenereerd via Chart.js:
+Er worden drie grafieken onder de tabellen gegenereerd via Chart.js:
 1. **Maandelijkse Opbrengst**: Toont de opbrengst per individuele maand per jaar. In deze grafiek is ook een zwarte gestreepte lijn ("Gemiddelde") toegevoegd die het historische gemiddelde per maand (berekend over alle volledige maanden) toont.
 2. **Cumulatieve Opbrengst**: Toont de opgetelde (cumulatieve) opbrengst van januari tot december voor elk jaar. In deze grafiek is tevens een zwarte gestreepte lijn ("Gemiddelde") toegevoegd die de cumulatieve opbouw van het historisch gemiddelde toont.
 3. **Verloop gedurende de dag (Daggrafiek)**: Toont het vermogensverloop (kW) per 10-minuten interval gedurende een geselecteerde dag. De datum kan geselecteerd worden via drie gekoppelde dropdown-menu's (Jaar, Maand, Dag) of via de pijlknoppen (vorige/volgende dag), welke goed te bedienen zijn op mobiel. De grafiek staat standaard ingesteld op de meest recente datum met gegevens. De data wordt dynamisch via `fetch()` geladen uit de `daily/` JSON-bestanden.
@@ -190,7 +190,7 @@ Onderaan de pagina wordt een voettekst (footer) getoond. Het sjabloon hiervoor w
   - Mobiele lettergrootte van de tabellen (`SIZE_MOBILE`) en padding geoptimaliseerd (`20px` en `8px 10px`) om paginabreedte-overflow te voorkomen.
   - Globale Chart.js lettergrootte ingesteld op `18` op mobiel om legendakrimp te voorkomen.
   - Cache-busting toegevoegd aan CSS-link in HTML (`?v=VERSION`) om mobiele cache-problemen te voorkomen.
-  - Versienummer en fall-back in script bijgewerkt naar `11-08-2026 09:24`.
+  - Versienummer en fall-back in script bijgewerkt naar `11-08-2026 09:31`.
 - **10-08-2026**:
   - Kolom **R. (JJJJ)** toegevoegd naast `Gr.ttl` in de jaaroverzichttabel. Toont de jaarlijkse opbrengst als percentage t.o.v. het eerste volledige kalenderjaar (referentie). Kleurcodering: groen ≥ 100%, blauw ≥ 90%, oranje < 90%. Bedoeld om paneel-degradatie over de jaren eenvoudig te monitoren.
   - Daggrafiek dropdown-selectie aangepast: bij het wisselen van Jaar of Maand blijven de geselecteerde Maand en Dag nu zoveel mogelijk behouden in plaats van terug te vallen naar de laatste dag/maand.
