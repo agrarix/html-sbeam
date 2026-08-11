@@ -195,5 +195,11 @@ th {
     padding: 10px 20px;
     border-radius: 8px;
 }
+.is-mobile table {
+    font-size: 32px !important;
+}
+.is-mobile th, .is-mobile td {
+    padding: 12px 16px !important;
+}
 
 

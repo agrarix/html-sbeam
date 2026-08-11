@@ -23,7 +23,7 @@ PGM = "html-sbeam"
 try:
     VERSION = f"({datetime.fromtimestamp(os.path.getmtime(__file__)).strftime('%d-%m-%Y %H:%M')})"
 except Exception:
-    VERSION = "(11-08-2026 09:21)"
+    VERSION = "(11-08-2026 09:22)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
