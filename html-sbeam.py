@@ -23,7 +23,7 @@ PGM = "html-sbeam"
 try:
     VERSION = f"({datetime.fromtimestamp(os.path.getmtime(__file__)).strftime('%d-%m-%Y %H:%M')})"
 except Exception:
-    VERSION = "(11-08-2026 09:23)"
+    VERSION = "(11-08-2026 09:24)"
 
 # === START FOOTER DEFINITIE ===
 # Bepaal OS en hostname voor de footer
@@ -1001,7 +1001,7 @@ def main():
     # Append Chart.js initialization script
     html.append("    <script>")
     html.append("    if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)) {")
-    html.append("        Chart.defaults.font.size = 28;")
+    html.append("        Chart.defaults.font.size = 18;")
     html.append("    }")
     html.append("    const ctx = document.getElementById('sbeamChart').getContext('2d');")
     html.append("    const chart = new Chart(ctx, {")
