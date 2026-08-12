@@ -202,7 +202,8 @@ th {
     padding: 8px 10px !important;
 }
 
-/* Responsieve rij voor grafiek 1 & 2: mobiel = gestapeld, desktop = naast elkaar */
+/* Responsieve rijen: mobiel = gestapeld, desktop = naast elkaar */
+.sbeam-row-0,
 .sbeam-row-1 {
     display: flex;
     flex-direction: column;
@@ -215,10 +216,12 @@ th {
 }
 
 @media (min-width: 1024px) {
+    .sbeam-row-0,
     .sbeam-row-1 {
         flex-direction: row;
         gap: 20px;
     }
+    .sbeam-row-0 .sbeam-col,
     .sbeam-row-1 .sbeam-col {
         flex: 1;
         min-width: 0;
