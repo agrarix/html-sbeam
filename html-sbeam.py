@@ -770,18 +770,21 @@ def main():
     html.append('    <P><span class="kwh-hoger">&#9632; Groen</span> = hoger dan vorig jaar | <span class="kwh-lager">&#9632; Oranje</span> = lager | <span class="kwh-gelijk">&#9632; Blauw</span> = gelijk | <span class="kwh-onvolledig">&#9632; Geel</span> = onvolledige maand</P>')
     html.append("    <HR>")
     
-    # Table Start - Table 1: Maandwaarden en Y.ttl
+    # Desktop: EEN brede gecombineerde tabel
+    html.append("    <div class='sbeam-desktop-table'>")
     html.append("    <TABLE border=1>")
-    
-    # Header Row Table 1
     html.append("      <TR>")
     html.append("        <TH>YR/<br>mnd</TH>")
     for month in range(1, 13):
         html.append(f"        <TH>{month:02d}</TH>")
     html.append("        <TH>Y.ttl</TH>")
+    html.append("        <TH>Gr.ttl</TH>")
+    ref_header = f"R. ({ref_year})" if ref_year else "R."
+    html.append(f"        <TH>{ref_header}</TH>")
+    html.append("        <TH>NL%</TH>")
+    html.append("        <TH>NL<br>kJ/<br>cm2</TH>")
     html.append("      </TR>")
     
-    # Data Rows Table 1
     for year in all_years:
         html.append("      <TR>")
         html.append(f"        <TD>{year}</TD>")
@@ -789,8 +792,6 @@ def main():
         for month in range(1, 13):
             val = monthly_data.get((year, month))
             val_str = str(val) if val is not None else ""
-            
-            # Year-over-year comparison for color coding
             prev_val = monthly_data.get((year - 1, month))
             
             color_class = ""
@@ -808,11 +809,111 @@ def main():
                 
             html.append(f"      <TD{color_class}>{val_str}</TD>")
             
-        # Yearly totals
+        y_ttl = yearly_y_ttl.get(year, "")
+        prev_y_ttl = yearly_y_ttl.get(year - 1, "")
+        gr_ttl = yearly_gr_ttl.get(year, "")
+        
+        year_has_missing_months = False
+        for m in range(1, 13):
+            if (year, m) not in monthly_data:
+                year_has_missing_months = True
+                break
+        
+        y_ttl_color_class = ""
+        if year_has_missing_months:
+            y_ttl_color_class = " class='kwh-onvolledig'"
+        elif y_ttl != "" and prev_y_ttl != "":
+            if y_ttl > prev_y_ttl:
+                y_ttl_color_class = " class='kwh-hoger'"
+            elif y_ttl < prev_y_ttl:
+                y_ttl_color_class = " class='kwh-lager'"
+            else:
+                y_ttl_color_class = " class='kwh-gelijk'"
+        elif y_ttl != "":
+            y_ttl_color_class = " class='kwh-neutraal'"
+            
+        html.append(f"      <TD{y_ttl_color_class}>{y_ttl}</TD>")
+        html.append(f"      <TD>{gr_ttl}</TD>")
+        
+        if ref_y_ttl and y_ttl != "" and year == ref_year:
+            html.append("      <TD class='kwh-gelijk'>100%</TD>")
+        elif ref_y_ttl and y_ttl != "":
+            ratio = round(y_ttl / ref_y_ttl * 100, 1)
+            if year_has_missing_months:
+                r_class = " class='kwh-onvolledig'"
+            elif ratio >= 100:
+                r_class = " class='kwh-hoger'"
+            else:
+                r_class = " class='kwh-lager'"
+            html.append(f"      <TD{r_class}>{ratio}%</TD>")
+        else:
+            html.append("      <TD></TD>")
+            
+        knmi_val = knmi_radiation.get(year)
+        if year_has_missing_months:
+            html.append("      <TD class='kwh-onvolledig'></TD>")
+        elif ref_knmi and knmi_val and year == ref_year:
+            html.append("      <TD class='kwh-gelijk'>100%</TD>")
+        elif ref_knmi and knmi_val:
+            nl_ratio = round(knmi_val / ref_knmi * 100, 1)
+            if nl_ratio >= 100:
+                nl_class = " class='kwh-hoger'"
+            else:
+                nl_class = " class='kwh-lager'"
+            html.append(f"      <TD{nl_class}>{nl_ratio}%</TD>")
+        else:
+            html.append("      <TD></TD>")
+            
+        if year_has_missing_months:
+            html.append("      <TD class='kwh-onvolledig'></TD>")
+        elif knmi_val:
+            html.append(f"      <TD>{knmi_val}</TD>")
+        else:
+            html.append("      <TD></TD>")
+        html.append("      </TR>")
+        
+    html.append("    </TABLE>")
+    html.append("    </div>")  # end sbeam-desktop-table
+    
+    # Mobiel: Twee gesplitste tabellen (Tabel 1 en Tabel 2 onder elkaar)
+    html.append("    <div class='sbeam-mobile-tables'>")
+    
+    # Table 1: Maandwaarden en Y.ttl
+    html.append("    <TABLE border=1>")
+    html.append("      <TR>")
+    html.append("        <TH>YR/<br>mnd</TH>")
+    for month in range(1, 13):
+        html.append(f"        <TH>{month:02d}</TH>")
+    html.append("        <TH>Y.ttl</TH>")
+    html.append("      </TR>")
+    
+    for year in all_years:
+        html.append("      <TR>")
+        html.append(f"        <TD>{year}</TD>")
+        
+        for month in range(1, 13):
+            val = monthly_data.get((year, month))
+            val_str = str(val) if val is not None else ""
+            prev_val = monthly_data.get((year - 1, month))
+            
+            color_class = ""
+            if (year, month) in incomplete_months:
+                color_class = " class='kwh-onvolledig'"
+            elif val is not None and prev_val is not None:
+                if val > prev_val:
+                    color_class = " class='kwh-hoger'"
+                elif val < prev_val:
+                    color_class = " class='kwh-lager'"
+                else:
+                    color_class = " class='kwh-gelijk'"
+            elif val is not None:
+                color_class = " class='kwh-neutraal'"
+                
+            html.append(f"      <TD{color_class}>{val_str}</TD>")
+            
         y_ttl = yearly_y_ttl.get(year, "")
         prev_y_ttl = yearly_y_ttl.get(year - 1, "")
         
-        # Check if the year has missing months (less than 12 months)
         year_has_missing_months = False
         for m in range(1, 13):
             if (year, m) not in monthly_data:
@@ -838,10 +939,8 @@ def main():
     html.append("    </TABLE>")
     html.append("    <HR>")
     
-    # Table Start - Table 2: Jaartotalen en statistieken
+    # Table 2: Jaartotalen en statistieken
     html.append("    <TABLE border=1>")
-    
-    # Header Row Table 2
     html.append("      <TR>")
     html.append("        <TH>YR</TH>")
     html.append("        <TH>Y.ttl</TH>")
@@ -852,17 +951,14 @@ def main():
     html.append("        <TH>NL<br>kJ/<br>cm2</TH>")
     html.append("      </TR>")
     
-    # Data Rows Table 2
     for year in all_years:
         html.append("      <TR>")
         html.append(f"        <TD>{year}</TD>")
         
-        # Yearly totals
         y_ttl = yearly_y_ttl.get(year, "")
         prev_y_ttl = yearly_y_ttl.get(year - 1, "")
         gr_ttl = yearly_gr_ttl.get(year, "")
         
-        # Check if the year has missing months (less than 12 months)
         year_has_missing_months = False
         for m in range(1, 13):
             if (year, m) not in monthly_data:
@@ -885,7 +981,6 @@ def main():
         html.append(f"      <TD{y_ttl_color_class}>{y_ttl}</TD>")
         html.append(f"      <TD>{gr_ttl}</TD>")
         
-        # Rendementsprocent t.o.v. referentiejaar
         if ref_y_ttl and y_ttl != "" and year == ref_year:
             html.append("      <TD class='kwh-gelijk'>100%</TD>")
         elif ref_y_ttl and y_ttl != "":
@@ -900,7 +995,6 @@ def main():
         else:
             html.append("      <TD></TD>")
             
-        # NL referentie straling (KNMI De Bilt) t.o.v. referentiejaar
         knmi_val = knmi_radiation.get(year)
         if year_has_missing_months:
             html.append("      <TD class='kwh-onvolledig'></TD>")
@@ -915,8 +1009,7 @@ def main():
             html.append(f"      <TD{nl_class}>{nl_ratio}%</TD>")
         else:
             html.append("      <TD></TD>")
-        
-        # Absolute NL straling (kJ/cm2)
+            
         if year_has_missing_months:
             html.append("      <TD class='kwh-onvolledig'></TD>")
         elif knmi_val:
@@ -926,6 +1019,7 @@ def main():
         html.append("      </TR>")
         
     html.append("    </TABLE>")
+    html.append("    </div>")  # end sbeam-mobile-tables
     html.append("    <HR>")
     
     # Generate line chart container — row 1 start

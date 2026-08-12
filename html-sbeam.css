@@ -202,8 +202,32 @@ th {
     padding: 8px 10px !important;
 }
 
-/* Responsieve rijen: mobiel = gestapeld, desktop = naast elkaar */
-.sbeam-row-0,
+/* Responsieve weergave tabellen: Desktop = 1 brede tabel, Mobiel = 2 gesplitste tabellen */
+.sbeam-desktop-table {
+    display: block;
+    overflow-x: auto;
+}
+.sbeam-mobile-tables {
+    display: none;
+}
+
+.is-mobile .sbeam-desktop-table {
+    display: none !important;
+}
+.is-mobile .sbeam-mobile-tables {
+    display: block !important;
+}
+
+@media (max-width: 1023px) {
+    .sbeam-desktop-table {
+        display: none;
+    }
+    .sbeam-mobile-tables {
+        display: block;
+    }
+}
+
+/* Responsieve rij voor grafiek 1 & 2 (Chart.js): mobiel = gestapeld, desktop = naast elkaar */
 .sbeam-row-1 {
     display: flex;
     flex-direction: column;
@@ -216,12 +240,10 @@ th {
 }
 
 @media (min-width: 1024px) {
-    .sbeam-row-0,
     .sbeam-row-1 {
         flex-direction: row;
         gap: 20px;
     }
-    .sbeam-row-0 .sbeam-col,
     .sbeam-row-1 .sbeam-col {
         flex: 1;
         min-width: 0;
