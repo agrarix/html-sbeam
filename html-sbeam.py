@@ -766,12 +766,12 @@ def main():
     
     # Header and Legend
     html.append(f"    <H1>{title}</H1>")
-    html.append("    <H2>Waarden in kWh</H2>")
     html.append('    <P><span class="kwh-hoger">&#9632; Groen</span> = hoger dan vorig jaar | <span class="kwh-lager">&#9632; Oranje</span> = lager | <span class="kwh-gelijk">&#9632; Blauw</span> = gelijk | <span class="kwh-onvolledig">&#9632; Geel</span> = onvolledige maand</P>')
     html.append("    <HR>")
     
     # Desktop: EEN brede gecombineerde tabel
     html.append("    <div class='sbeam-desktop-table'>")
+    html.append("    <H2>Maand- en Jaaroverzicht (kWh)</H2>")
     html.append("    <TABLE border=1>")
     html.append("      <TR>")
     html.append("        <TH>YR/<br>mnd</TH>")
@@ -879,6 +879,7 @@ def main():
     html.append("    <div class='sbeam-mobile-tables'>")
     
     # Table 1: Maandwaarden en Y.ttl
+    html.append("    <H2>Maandwaarden per Jaar (kWh)</H2>")
     html.append("    <TABLE border=1>")
     html.append("      <TR>")
     html.append("        <TH>YR/<br>mnd</TH>")
@@ -940,6 +941,7 @@ def main():
     html.append("    <HR>")
     
     # Table 2: Jaartotalen en statistieken
+    html.append("    <H2>Jaartotalen en Statistieken</H2>")
     html.append("    <TABLE border=1>")
     html.append("      <TR>")
     html.append("        <TH>YR</TH>")
