@@ -770,9 +770,6 @@ def main():
     html.append('    <P><span class="kwh-hoger">&#9632; Groen</span> = hoger dan vorig jaar | <span class="kwh-lager">&#9632; Oranje</span> = lager | <span class="kwh-gelijk">&#9632; Blauw</span> = gelijk | <span class="kwh-onvolledig">&#9632; Geel</span> = onvolledige maand</P>')
     html.append("    <HR>")
     
-    # Table 1+2 row container — row 0 start
-    html.append("    <div class='sbeam-row-0'>")
-    html.append("    <div class='sbeam-col'>")
     # Table Start - Table 1: Maandwaarden en Y.ttl
     html.append("    <TABLE border=1>")
     
@@ -839,8 +836,8 @@ def main():
         html.append("      </TR>")
         
     html.append("    </TABLE>")
-    html.append("    </div>")  # end sbeam-col 1 (tabel 1)
-    html.append("    <div class='sbeam-col'>")
+    html.append("    <HR>")
+    
     # Table Start - Table 2: Jaartotalen en statistieken
     html.append("    <TABLE border=1>")
     
@@ -929,8 +926,6 @@ def main():
         html.append("      </TR>")
         
     html.append("    </TABLE>")
-    html.append("    </div>")  # end sbeam-col 2 (tabel 2)
-    html.append("    </div>")  # end sbeam-row-0
     html.append("    <HR>")
     
     # Generate line chart container — row 1 start
