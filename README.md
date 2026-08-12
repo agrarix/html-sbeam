@@ -183,6 +183,11 @@ Onderaan de pagina wordt een voettekst (footer) getoond. Het sjabloon hiervoor w
 
 ## 📝 Wijzigingsgeschiedenis
 
+- **12-08-2026**:
+  - **Responsieve Tabellen (Desktop vs Mobiel)**: Op Desktop (schermen ≥ 1024px) wordt weer 1 brede gecombineerde tabel getoond met alle kolommen (`YR/mnd`, `01` t/m `12`, `Y.ttl`, `Gr.ttl`, `R.`, `NL%`, `NL kJ/cm2`). Op Mobiel (of smalle schermen) wordt deze automatisch verborgen en vervangen door twee gesplitste tabellen onder elkaar.
+  - **Grafiek Legenda Optimalisatie**: Legenda van de jaargrafieken geoptimaliseerd (`boxWidth: 25`, `padding: 3`, `font.size: 11`) om te voorkomen dat het meest recente jaar (2026) naar een tweede legenda-kolom afbreekt en afgesneden wordt.
+  - **Dynamische Versie en Hash**: `VERSION` verwijderd uit `html-sbeam.rc`. Het versienummer gebruikt nu de dynamische script mtime `html-sbeam (build:dd-mm-jjjj uu:mm:ss)` en de CSS link gebruikt automatische cache-busting op basis van mtime.
+  - **Projectrichtlijnen**: IP-adres en SSH-instellingen van de webserver `fabrix` (`192.168.178.40`) bijgewerkt in `.agents/AGENTS.md`, inclusief verplichte post-deployment verificatie.
 - **11-08-2026**:
   - De hoofdtabel ("grafiek") gesplitst in twee afzonderlijke tabellen:
     1. Eerste tabel met de maandelijkse opbrengstgegevens (jan t/m dec) en de jaaropbrengst `Y.ttl`.
