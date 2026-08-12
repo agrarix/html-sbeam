@@ -928,12 +928,14 @@ def main():
     html.append("    </TABLE>")
     html.append("    <HR>")
     
-    # Generate line chart container
+    # Generate line chart container — row 1 start
+    html.append("    <div class='sbeam-row-1'>")
+    html.append("    <div class='sbeam-col'>")
     html.append("    <H2>Grafiek per Jaar</H2>")
-    html.append("    <div class='chart-container' style='position: relative; max-width: 1000px; margin: 20px 0;'>")
+    html.append("    <div class='chart-container' style='position: relative; margin: 20px 0;'>")
     html.append("        <canvas id='sbeamChart'></canvas>")
     html.append("    </div>")
-    html.append("    <HR>")
+    html.append("    </div>")  # end sbeam-col 1
     
     # Generate datasets JS array for Chart.js
     datasets_js = []
@@ -1076,11 +1078,14 @@ def main():
     html.append("    });")
     html.append("    </script>")
     
-    # Generate cumulative line chart container
+    # Generate cumulative line chart container — row 1 col 2
+    html.append("    <div class='sbeam-col'>")
     html.append("    <H2>Cumulatieve Opbrengst per Jaar</H2>")
-    html.append("    <div class='chart-container' style='position: relative; max-width: 1000px; margin: 20px 0;'>")
+    html.append("    <div class='chart-container' style='position: relative; margin: 20px 0;'>")
     html.append("        <canvas id='sbeamCumChart'></canvas>")
     html.append("    </div>")
+    html.append("    </div>")  # end sbeam-col 2
+    html.append("    </div>")  # end sbeam-row-1
     html.append("    <HR>")
     
     # Generate cumulative datasets JS array for Chart.js
