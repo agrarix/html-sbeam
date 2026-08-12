@@ -1481,8 +1481,19 @@ def main():
     # === END FOOTER VERVANGING ===
     
     html.append("    <center>")
-    html.append(f"    <div class=\"footer\">{footer_text}</div>")
+    html.append(f"    <div class=\"footer\">{footer_text} &nbsp;|&nbsp; <span id=\"sbeam-viewmode\"></span></div>")
     html.append("    </center>")
+    html.append("    <script>")
+    html.append("    (function() {")
+    html.append("        var span = document.getElementById('sbeam-viewmode');")
+    html.append("        if (!span) return;")
+    html.append("        function setMode() {")
+    html.append("            span.textContent = window.innerWidth >= 1024 ? 'Desktop' : 'Mobiel';")
+    html.append("        }")
+    html.append("        setMode();")
+    html.append("        window.addEventListener('resize', setMode);")
+    html.append("    })();")
+    html.append("    </script>")
     html.append("  </BODY>")
     html.append("</HTML>")
     
