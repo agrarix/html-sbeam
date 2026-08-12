@@ -494,7 +494,7 @@ def main():
             build_time_str = datetime.fromtimestamp(os.path.getmtime(__file__)).strftime('%d-%m-%Y %H:%M:%S')
         except Exception:
             build_time_str = "04-07-2026 21:25:23"
-        print(f"html-sbeam 2.0 ({build_time_str})")
+        print(f"html-sbeam (build:{build_time_str})")
         return
         
     # Determine config file (support both positional and optional)
